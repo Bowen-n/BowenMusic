@@ -1,0 +1,38 @@
+QScrollArea {
+    background-color: #1A2F60;
+    border: none;
+}
+
+QTreeWidget {
+    background: #1A2F60;
+    border: none;
+    outline: none;
+    font-size: 20px;
+    font-family: "Microsoft YaHei";
+}
+
+QTreeWidget::item{
+    color: #FFFFFF;
+    background: #1A2F60; 
+    height: 55px;
+}
+
+QTreeWidget::item:hover{
+    background: #1B2C52;
+    
+}
+
+QTreeWidget::item:selected{
+    background: #1B2C52;
+
+}
+
+QHeaderView::section{
+    border: none;
+    outline: none;
+    font-size: 21px;
+    font-family: "Microsoft YaHei";
+    background: #1A2F60;
+    color: #8A93A6;
+    height: 45px;
+}

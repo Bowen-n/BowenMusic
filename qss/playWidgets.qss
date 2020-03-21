@@ -1,0 +1,118 @@
+QFrame{
+    background: #1A2F60;
+    padding-left: 15px; 
+}
+
+QPushButton{
+    background: none;
+    border: none;
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+}
+
+QPushButton#previous_button {
+    border-image: url('resource/previous.png');
+    width: 40px;
+    height: 40px;
+}
+
+QPushButton#play_button {
+    border-image: url('resource/play.png');
+}
+
+QPushButton#pause_button {
+    border-image: url('resource/pause.png');
+}
+
+QPushButton#next_button {
+    border-image: url('resource/next.png');
+    width: 40px;
+    height: 40px;
+}
+
+QPushButton#volume {
+    width: 30px;
+    height: 30px;
+    border-image: url('resource/volume.png');
+}
+
+QPushButton#no_volume {
+    width: 30px;
+    height: 30px;
+    border-image: url('resource/no_volume.png');
+}
+
+QPushButton#single {
+    width: 30px;
+    height: 30px;
+    border-image: url("resource/single.png");
+}
+
+QPushButton#repeat {
+    width: 33px;
+    height: 33px;
+    border-image: url("resource/repeat.png");
+}
+
+
+QPushButton#shuffle {
+    width: 28px;
+    height: 28px;
+    border-image: url("resource/shuffle.png");
+}
+
+QLabel {
+    font: 10pt "Microsoft YaHei";
+    color: #FFFFFF;
+    margin: 0px 0;
+}
+
+
+QSlider#slider::groove:horizontal {
+    height: 4px;
+    /*width: 1600px;*/
+    border: 1px solid #4B5876;
+    border-radius: 2px;
+    background: #4B5876;
+}
+
+QSlider#slider::handle:horizontal {
+    background: #284A94;
+    width: 14px;
+    margin-top: -5px;
+    margin-bottom: -5px;
+    border-radius: 7.4px;
+}
+
+QSlider#slider::handle:horizontal:hover {
+    background: #284A94;
+}
+
+QSlider#slider::sub-page:horizontal{
+    border: 1px solid #284A94;
+    border-radius: 2px;
+    background: #284A94;
+}
+
+QSlider#volume_slider::groove:horizontal {
+    height: 4px;
+    width: 80px;
+    border: 1px solid #4B5876;
+    border-radius: 2px;
+    background: #4B5876;
+}
+
+QSlider#volume_slider::handle:horizontal {
+    background: #4B5876;
+    width: 14px;
+    margin-top: -5px;
+    margin-bottom: -5px;
+    border-radius: 7.4px;
+}
+
+QSlider#volume_slider::sub-page:horizontal{
+    border: 1px solid #284A94;
+    border-radius: 2px;
+    background: #284A94;
+}

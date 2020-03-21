@@ -1,0 +1,22 @@
+
+QPushButton#close_button, QPushButton#min_button{
+    color: #8C90AA;
+    font-size: 25px;
+    background-color:#1A2F60;
+    border: none;
+}
+
+
+
+QLabel{
+    font: 40 10pt "Microsoft YaHei";
+    color: #FFFFFF;
+}
+
+QFrame#line1{
+    color: #8C90AA;
+}
+
+QFrame#Header{
+    background-color:#1A2F60;
+}

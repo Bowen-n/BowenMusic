@@ -1,0 +1,51 @@
+QWidget#MainWindow{
+    background: #1A2F60;
+}
+
+QFrame#line1{
+    color: #CCCCCC;
+}
+
+QScrollBar:vertical{
+    background: #191B1F;
+    width: 7px;
+    margin: 0px 0 0px 0;
+}
+
+QScrollBar::handle:vertical{
+    background: #2F3134;
+    min-height: 20px;
+    margin: 0 0 0 0;
+    border-radius: 3px;
+    border: none;
+}
+
+QScrollBar::handle:hover{
+    background: #3B3C40;
+    min-height: 20px;
+    margin: 0 0 0 0;
+    border-radius: 3px;
+    border: none;
+}
+
+QScrollBar::add-line:vertical{
+    background: #191B1F;
+    height: 0px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical{
+    background: #191B1F;
+    height: 0px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical{
+    background: none;
+}
+
+QScrollBar:horizontal {
+    height: 0px;
+}

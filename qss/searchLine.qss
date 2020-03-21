@@ -1,0 +1,15 @@
+QPushButton {
+    border-image: url(resource/search.png);
+}
+
+QLineEdit#SearchLine{
+    margin-bottom: 1px;
+    background-color: #2C3B5F;
+    border-radius: 15px;
+    font: 80 9pt "Microsoft Yahei";
+    color: #FFFFFF;
+}
+
+QLineEdit#SearchLine:pressed {
+    color: #FFFFFF;
+}

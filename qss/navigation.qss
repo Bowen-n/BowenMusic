@@ -1,0 +1,48 @@
+QFrame {
+    outline: none;
+    border: none;
+    background: #1A2F60;
+}
+
+QScrollArea{
+    background: #1A2F60;
+    outline: none;
+    border: none;
+    border-right: 1px solid #CCCCCC;
+}
+
+QLabel {
+    padding-left: 50px;
+    color: #FFFFFF;
+    font: 40 11pt "Microsoft YaHei";
+}
+
+QListWidget {
+    padding-left: 50px;
+    background: #1A2F60;
+    border: 0px;
+    outline: none;
+}
+
+QListWidget#navigation_list::item, QListWidget#local_list::item, QListWidget#play_list::item {
+    height: 50px;
+    outline: none;
+    background: none;
+    color: #FFFFFF;
+    text-align: center;
+    font: 10pt "Microsoft YaHei";
+}
+
+QListWidget#navigation_list::item:hover, QListWidget#local_list::item:hover, QListWidget#play_list::item::hover {
+    color: #FFFFFF;
+    border-radius: 13px;
+    background: #485A81;
+}
+
+QListWidget#navigation_list::item:selected, QListWidget#local_list::item:selected, QListWidget#play_list::item::selected {
+    background: #485A81;
+    color: #FFFFFF;
+    border-radius: 13px;
+}
+
+
