@@ -70,12 +70,9 @@ class QQMusicApi():
             'accept': 'application/json, text/javascript, */*; q=0.01',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            # for vip songs, you need vip's cookie 
-            # 'cookie': 
+            # 'cookie':  vip songs need vip's cookie
             'origin': 'https://y.qq.com',
             'referer': 'https://y.qq.com/portal/player.html',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
         }
 
@@ -123,7 +120,6 @@ class QQMusicApi():
         return json.loads(requests.get(url, params=params, headers=headers).text)
 
 
-
 class NeteaseCloudMusicAPI():
     ''' Ref: https://www.jianshu.com/p/5379d35ed646 '''
 
@@ -143,40 +139,6 @@ class NeteaseCloudMusicAPI():
         self.modulus = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7'
         self.nonce = b'0CoJUm6Qyw8W8jud'
         self.pubKey = '010001'
-        
-        
-    def createSecretKey(self, size):
-        ''' reimplement of function a
-        Generate random string
-        '''
-        return binascii.hexlify(os.urandom(size))[:16]
-
-
-    def aesEncrypt(self, text, secKey):
-        pad = 16 - len(text.encode()) % 16
-        text = text + pad * chr(pad)
-        encryptor = AES.new(secKey, AES.MODE_CBC, '0102030405060708'.encode('utf8'))
-        ciphertext = encryptor.encrypt(text.encode('utf8'))
-        ciphertext = base64.b64encode(ciphertext).decode('utf8')
-        return ciphertext
-    
-
-    def rsaEncrypt(self, text, pubKey, modulus):
-        text = text[::-1]
-        rs = int(bytes.hex(text), 16) ** int(pubKey, 16) % int(modulus, 16)
-        return format(rs, 'x').zfill(256)
-    
-
-    def encrypted_request(self, text):
-        text = json.dumps(text)
-        secKey = self.createSecretKey(16)
-        encText = self.aesEncrypt(self.aesEncrypt(text, self.nonce), secKey)
-        encSecKey = self.rsaEncrypt(secKey, self.pubKey, self.modulus)
-        return data = {
-            'params': encText,
-            'encSecKey': encSecKey
-        }
-
 
     def search(self, keyword, type, offset=0, limit=30):
         '''
@@ -192,35 +154,82 @@ class NeteaseCloudMusicAPI():
             'total':'true', 
             'limit': limit
         }
-        response = requests.post(url, data=self.encrypted_request(req), headers=self.header)
+        response = requests.post(url, data=self._encrypted_request(req), headers=self.header)
         result = json.loads(response.text)
         song_list = result['result']['songs']
-        print(song_list)
+        
+        search_result = []
+        for item in song_list:
+            info = {}
+            info['song_name'] = item['name']
+            info['song_id'] = item['id']
+            info['album_name'] = item['al']['name']
+            info['album_id'] = item['al']['id']
+            
+            singer_list = []
+            for singer in item['ar']:
+                singer_list.append(singer['name'])
+            
+            info['singer_list'] = singer_list
+            search_result.append(info)
+
+        return search_result
     
-    def comment(self, song_id):
-        url = 'https://music.163.com/weapi/v1/resource/comments/R_SO_4_' + \
-        song_id + '?csrf_token='
 
+    def get_url(self, song_id, br=128000):
+        url = self.base_url + 'weapi/song/enhance/player/url?csrf_token='
         req = {
-            "csrf_token":"",
-            "limit":"20",
-            "offset":"0",
-            "rid":"R_SO_4_" + song_id,
-            "total":"true"
+            'ids': [song_id],
+            'br': br
         }
-        response = requests.post(url, data=self.encrypted_reques(req), header=self.header)
-        print(response.text)
+        response = requests.post(url, data=self._encrypted_request(req), headers=self.header)
+        result = json.loads(response.text)
+
+        print(result)
+        
+
+    def _create_secret_key(self, size):
+        ''' reimplement of function a
+        Generate random string
+        '''
+        return binascii.hexlify(os.urandom(size))[:16]
+
+    def _aes_encrypt(self, text, secKey):
+        pad = 16 - len(text.encode()) % 16
+        text = text + pad * chr(pad)
+        encryptor = AES.new(secKey, AES.MODE_CBC, '0102030405060708'.encode('utf8'))
+        ciphertext = encryptor.encrypt(text.encode('utf8'))
+        ciphertext = base64.b64encode(ciphertext).decode('utf8')
+        return ciphertext
+
+    def _rsa_encrypt(self, text, pubKey, modulus):
+        text = text[::-1]
+        rs = int(bytes.hex(text), 16) ** int(pubKey, 16) % int(modulus, 16)
+        return format(rs, 'x').zfill(256)
+    
+    def _encrypted_request(self, text):
+        text = json.dumps(text)
+        secKey = self._create_secret_key(16)
+        encText = self._aes_encrypt(self._aes_encrypt(text, self.nonce), secKey)
+        encSecKey = self._rsa_encrypt(secKey, self.pubKey, self.modulus)
+        return  {
+            'params': encText,
+            'encSecKey': encSecKey
+        }
 
 
-song_id = '烟火里的尘埃'
+
+keyword = '我的一个道姑朋友'
 api = NeteaseCloudMusicAPI()
-api.search(song_id, 10)
-'''
+print(api.search(keyword, 1))
+api.get_url(song_id='1367452194')
 
-api = QQMusicApi()
-search_result = api.search('告白气球')
 
-url = api.get_url(search_result[0]['song_mid'])
-print(url)
-urllib.request.urlretrieve(url, '告白气球.m4a')
-'''
+
+# test QQMusicApi
+# api = QQMusicApi()
+# search_result = api.search('告白气球')
+
+# url = api.get_url(search_result[0]['song_mid'])
+# print(url)
+# urllib.request.urlretrieve(url, '告白气球.m4a')
