@@ -33,7 +33,6 @@ class QQMusicApi():
 
         result = self._request(search_url, params)
         result = result['data']['song']['list']
-
         search_result = []
 
 
@@ -157,7 +156,6 @@ class NeteaseCloudMusicAPI():
         response = requests.post(url, data=self._encrypted_request(req), headers=self.header)
         result = json.loads(response.text)
         song_list = result['result']['songs']
-        
         search_result = []
         for item in song_list:
             info = {}
@@ -219,9 +217,9 @@ class NeteaseCloudMusicAPI():
 
 
 
-keyword = '我的一个道姑朋友'
+keyword = '烟火里的尘埃'
 api = NeteaseCloudMusicAPI()
-print(api.search(keyword, 1))
+# api.search(keyword, 1)
 api.get_url(song_id='1367452194')
 
 
