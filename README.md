@@ -27,8 +27,21 @@
 * 支持了多个歌单的“加入歌单”功能以及Navigation中多歌单的显示
 * 完成歌单播放，对于本地音乐和歌单，播放里面的一首歌就将本地或对应歌单的所有歌加入后台播放列表中，并完成顺序、单曲循环、随机播放三种模式的功能
 
+2020.3.23
+* 完成网易云搜索歌曲（专辑、歌手）API，对post参数AES+RSA加密
+* 问题
+  ```python 
+  from Crypto.Cipher import AES
+  ```
+  报错的原因是Crypto只支持32位，需要安装[pycryptodome](https://github.com/Legrandin/pycryptodome)，建议使用`pip install pycryptodomex`安装，然后
+  ```python
+  from Cryptodome.Cipher import AES
+  ```
+
+
+
 ### TODO
-* [ ] 网易云音乐API
+* [x] 网易云音乐API
 * [ ] 咪咕音乐API
 * [ ] 添加歌单功能
 * [ ] Player排版问题（歌名长度不一致）
