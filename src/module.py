@@ -907,7 +907,7 @@ class PlayWidgets(QFrame):
         ''' moving slider '''
         ratio = self.slider.value() / 1000
         music_time = (self.player.duration() // 1000) * ratio # ms -> s
-        music_time_str = QQMusicApi().convert_interval(int(music_time))
+        music_time_str = convert_interval(int(music_time))
         
         total_time = self.time.text().split('/')[-1]
         self.time.setText(music_time_str + '/' + total_time)
