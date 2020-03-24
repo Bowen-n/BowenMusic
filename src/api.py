@@ -10,12 +10,40 @@ import requests
 from Cryptodome.Cipher import AES
 
 
+def convert_interval(interval):
+    ''' convert interval(s) to   `str` -  hour:min:sec '''
+    hour = math.floor(interval / 3600)
+    interval %= 3600
+    minu = math.floor(interval / 60)
+    sec = interval % 60
+
+    if hour < 10:
+        hour = '0' + str(hour)
+    else:
+        hour = str(hour)
+    
+    if minu < 10:
+        minu = '0' + str(minu)
+    else:
+        minu = str(minu)
+
+    if sec < 10:
+        sec = '0' + str(sec)
+    else:
+        sec = str(sec)
+    
+    if hour == '00':
+        return minu + ':' + sec
+    else:
+        return hour + ':' + minu + ':' + sec
+
+
 class QQMusicApi():
     ''' Ref: https://jsososo.com/#/article?id=5a6254c0c4 '''
 
     def __init__(self):
         self.sip = 'http://dl.stream.qqmusic.qq.com/'
-
+        self.name = 'qq'
 
     def search(self, page, keyword):
         ''' search according to keyword 
@@ -33,6 +61,7 @@ class QQMusicApi():
 
         result = self._request(search_url, params)
         result = result['data']['song']['list']
+
         search_result = []
 
 
@@ -69,7 +98,7 @@ class QQMusicApi():
             'accept': 'application/json, text/javascript, */*; q=0.01',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            # 'cookie':  vip songs need vip's cookie
+            # 'cookie': vip songs need vip's cookie 
             'origin': 'https://y.qq.com',
             'referer': 'https://y.qq.com/portal/player.html',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
@@ -86,34 +115,6 @@ class QQMusicApi():
         return self.sip + purl
 
 
-    def convert_interval(self, interval):
-        
-        hour = math.floor(interval / 3600)
-        interval %= 3600
-        minu = math.floor(interval / 60)
-        sec = interval % 60
-
-        if hour < 10:
-            hour = '0' + str(hour)
-        else:
-            hour = str(hour)
-        
-        if minu < 10:
-            minu = '0' + str(minu)
-        else:
-            minu = str(minu)
-
-        if sec < 10:
-            sec = '0' + str(sec)
-        else:
-            sec = str(sec)
-        
-        if hour == '00':
-            return minu + ':' + sec
-        else:
-            return hour + ':' + minu + ':' + sec
-
-
     def _request(self, url, params=None, headers=None):
         ''' return response dict '''
         return json.loads(requests.get(url, params=params, headers=headers).text)
@@ -123,6 +124,7 @@ class NeteaseCloudMusicAPI():
     ''' Ref: https://www.jianshu.com/p/5379d35ed646 '''
 
     def __init__(self):
+        self.name = 'netease'
         self.base_url = 'http://music.163.com/'
         self.header={
             'Accept': '*/*',
@@ -156,14 +158,15 @@ class NeteaseCloudMusicAPI():
         response = requests.post(url, data=self._encrypted_request(req), headers=self.header)
         result = json.loads(response.text)
         song_list = result['result']['songs']
+        
         search_result = []
         for item in song_list:
             info = {}
             info['song_name'] = item['name']
-            info['song_id'] = item['id']
+            info['song_mid'] = item['id']
             info['album_name'] = item['al']['name']
-            info['album_id'] = item['al']['id']
-            
+            info['album_mid'] = item['al']['id']
+            info['interval'] = int(int(item['dt'])/1000)
             singer_list = []
             for singer in item['ar']:
                 singer_list.append(singer['name'])
@@ -183,7 +186,7 @@ class NeteaseCloudMusicAPI():
         response = requests.post(url, data=self._encrypted_request(req), headers=self.header)
         result = json.loads(response.text)
 
-        print(result)
+        return result['data'][0]['url']
         
 
     def _create_secret_key(self, size):
@@ -217,10 +220,10 @@ class NeteaseCloudMusicAPI():
 
 
 
-keyword = '烟火里的尘埃'
-api = NeteaseCloudMusicAPI()
-# api.search(keyword, 1)
-api.get_url(song_id='1367452194')
+# keyword = '我的一个道姑朋友'
+# api = NeteaseCloudMusicAPI()
+# print(api.search(keyword, 1))
+# print(api.get_url(song_id='1367452194'))
 
 
 
@@ -231,3 +234,4 @@ api.get_url(song_id='1367452194')
 # url = api.get_url(search_result[0]['song_mid'])
 # print(url)
 # urllib.request.urlretrieve(url, '告白气球.m4a')
+

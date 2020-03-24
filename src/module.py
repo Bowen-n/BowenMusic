@@ -13,7 +13,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtWidgets import *
 
-from api import QQMusicApi
+from api import QQMusicApi, NeteaseCloudMusicAPI, convert_interval
 from component import ImgLabel, SearchLineEdit
 
 
@@ -23,6 +23,7 @@ class Header(QFrame):
     def __init__(self, parent=None):
         super(Header, self).__init__()
         self.setObjectName('Header')
+        self.music_source = 'qq' # 'netease' or 'qq' or 'migu'
         # self.setWindowFlags(Qt.FramelessWindowHint)
 
         with open('qss/header.qss', 'r', encoding='utf-8') as f:
@@ -67,36 +68,52 @@ class Header(QFrame):
     def _set_line_edits(self):
         self.search_line = SearchLineEdit(self)
         self.search_line.setPlaceholderText("〇 搜索音乐, 歌手")
-        self.search_line.returnPressed.connect(lambda: Thread(target=self._search).start())
-        self.search_line.set_button_slot(lambda: Thread(target=self._search).start())
+        self.search_line.returnPressed.connect(lambda: Thread(target=self.search).start())
+        self.search_line.set_button_slot(lambda: Thread(target=self.search).start())
 
 
-    def _search(self):
+    def search(self):
         self.parent.main_list.music_list.clear()
+        self.parent.navigation.local_list.setCurrentItem(None)
+        self.parent.navigation.play_list.setCurrentItem(None)
+
         self.parent.main_list.display_mode = 'global'
         keywords = self.search_line.text()
-        api = QQMusicApi()
+        if keywords == '':
+            return
 
-        for page in [1, 2]:
-            search_result = api.search(page, keywords)
-            for item in search_result:
-                qt_item = QTreeWidgetItem()
+        if self.music_source == 'qq':
+            self.parent.navigation.navigation_list.setCurrentRow(0)
+            api = QQMusicApi()
+        elif self.music_source == 'netease':
+            self.parent.navigation.navigation_list.setCurrentRow(1)
+            api = NeteaseCloudMusicAPI()
 
-                qt_item.setText(0, item['song_name'])
+        search_result = []
+        if api.name == 'qq':
+            for page in [1, 2]:
+                search_result += api.search(page, keywords)
+        elif api.name == 'netease':
+            search_result += api.search(keywords, 1)
 
-                singers = ''
-                for singer in item['singer_list']:
-                    singers += singer
-                    singers += '/'
-                singers = singers.strip('/')
-                qt_item.setText(1, singers)
+        for item in search_result:
+            qt_item = QTreeWidgetItem()
 
-                qt_item.setText(2, item['album_name'])
-                qt_item.setText(3, api.convert_interval(item['interval']))
-                qt_item.setText(4, item['song_mid'])
-                qt_item.setText(5, item['image_url'])
+            qt_item.setText(0, item['song_name'])
 
-                self.parent.main_list.music_list.addTopLevelItem(qt_item)
+            singers = ''
+            for singer in item['singer_list']:
+                singers += singer
+                singers += '/'
+            singers = singers.strip('/')
+            qt_item.setText(1, singers)
+
+            qt_item.setText(2, item['album_name'])
+            qt_item.setText(3, convert_interval(item['interval']))
+            qt_item.setText(4, str(item['song_mid']))
+            # qt_item.setText(5, item['image_url'])
+
+            self.parent.main_list.music_list.addTopLevelItem(qt_item)
 
 
     def _set_lines(self):
@@ -154,6 +171,7 @@ class Header(QFrame):
         self.parent.m_drag = False
 
 class Navigation(QScrollArea):
+    search_music_signal = pyqtSignal()
     ''' On the left of the whole window
     Containing online music, local music and song list
     '''
@@ -201,7 +219,8 @@ class Navigation(QScrollArea):
         self.navigation_list.setMaximumHeight(110)
         self.navigation_list.setMaximumWidth(210)
         self.navigation_list.setObjectName('navigation_list')
-        self.navigation_list.addItem(QListWidgetItem(QIcon('resource/discover.png'), "发现音乐"))
+        self.navigation_list.addItem(QListWidgetItem(QIcon('resource/qq_music.png'), "QQ音乐"))
+        self.navigation_list.addItem(QListWidgetItem(QIcon('resource/netease_music.png'), '网易云音乐'))
         self.navigation_list.itemClicked.connect(self._discover_music)
         # self.navigation_list.setCurrentRow(0)
 
@@ -226,6 +245,15 @@ class Navigation(QScrollArea):
     def _discover_music(self):
         self.parent.main_list.display_mode = 'global'
         self.parent.main_list.music_list.clear()
+        
+        
+        if self.navigation_list.currentRow() == 0:
+            self.parent.header.music_source = 'qq'
+        elif self.navigation_list.currentRow() == 1:
+            self.parent.header.music_source = 'netease'
+        self.search_music_signal.emit()
+
+
         self.local_list.setCurrentItem(None)
         self.play_list.setCurrentItem(None)
     
@@ -238,15 +266,17 @@ class Navigation(QScrollArea):
 
         for file_path in os.listdir('userdata/music'):
             path = os.path.join('userdata/music', file_path)
-            media_info = json.loads(MediaInfo.parse(path).to_json())
-            song_name = media_info['tracks'][0]['title']
-            singers = media_info['tracks'][0]['performer']
-            album_name = media_info['tracks'][0]['album']
+            media_info = json.loads(MediaInfo.parse(path).to_json())['tracks'][0]
+
+            # song_name = media_info['title'] if 'title' in media_info else file_path.split('_')[0]
+            song_name = file_path.split('_')[0]
+            singers = media_info['performer'] if 'performer' in media_info else ''
+            album_name = media_info['album'] if 'album' in media_info else ''
 
             api = QQMusicApi()
             
-            duration = api.convert_interval(
-                math.floor(media_info['tracks'][0]['duration']/1000))
+            duration = convert_interval(
+                math.floor(media_info['duration']/1000)) if 'duration' in media_info else ''
             
             song_mid = file_path.split('.')[0].split('_')[1]
             
@@ -283,7 +313,7 @@ class Navigation(QScrollArea):
             qt_item.setText(2, song['album_name'])
             qt_item.setText(3, song['interval'])
             qt_item.setText(4, song['song_mid'])
-            qt_item.setText(5, song['image_url'])
+            # qt_item.setText(5, song['image_url'])
 
             self.parent.main_list.music_list.addTopLevelItem(qt_item)
 
@@ -297,12 +327,12 @@ class Navigation(QScrollArea):
         self.main_layout.addWidget(self.online_music)
         self.main_layout.addSpacing(15)
         self.main_layout.addWidget(self.navigation_list)
-        self.main_layout.addSpacing(10)
+        self.main_layout.addSpacing(20)
 
         self.main_layout.addWidget(self.my_music)
         self.main_layout.addSpacing(15)
         self.main_layout.addWidget(self.local_list)
-        self.main_layout.addSpacing(10)
+        self.main_layout.addSpacing(20)
 
         self.main_layout.addWidget(self.list_label)
         self.main_layout.addSpacing(15)
@@ -311,6 +341,7 @@ class Navigation(QScrollArea):
 
         self.main_layout.addStretch(1)
         self.setContentsMargins(0, 0, 0, 0)
+
 
 class Mainlist(QScrollArea):
     ''' song QTreeWidget 
@@ -327,7 +358,6 @@ class Mainlist(QScrollArea):
     def __init__(self, parent=None):
         super(Mainlist, self).__init__()
         self.parent = parent
-        self.api = QQMusicApi()
 
         self.music_dir = 'userdata/music'
         self.root_dir = os.path.dirname(os.path.dirname(
@@ -405,12 +435,12 @@ class Mainlist(QScrollArea):
         elif action in add_action:
             # get music info dict
             music_info = {}
+            music_info['source'] = self.parent.header.music_source
             music_info['song_name'] = item.text(0)
             music_info['singers'] = item.text(1)
             music_info['album_name'] = item.text(2)
             music_info['interval'] = item.text(3)
             music_info['song_mid'] = item.text(4)
-            music_info['image_url'] = item.text(5)
 
             # get song list json file path
             list_name = _play_list[add_action.index(action)]
@@ -438,15 +468,20 @@ class Mainlist(QScrollArea):
 
         song_name = qtree_item.text(0)
         song_mid = qtree_item.text(4)
-        # print(song_mid)
+
         local_exist = False
         for music_file in os.listdir(self.music_dir):
             if song_mid in music_file:
                 music_path = os.path.join(self.music_dir, music_file)
                 local_exist = True
 
+
         if not local_exist:
-            url = self.api.get_url(song_mid)
+            if self.parent.header.music_source == 'qq':
+                api = QQMusicApi()
+            elif self.parent.header.music_source == 'netease':
+                api = NeteaseCloudMusicAPI()
+            url = api.get_url(song_mid)
             music_path = 'userdata/music/{}_{}.m4a'.format(song_name, song_mid)
             urllib.request.urlretrieve(url, music_path)
 
@@ -460,14 +495,15 @@ class Mainlist(QScrollArea):
         only when searching music
         '''
         # only load more in global mode
-        if self.display_mode == 'local':
+        if self.display_mode == 'local' or self.parent.header.music_source != 'qq':
             return
   
         # scroll bar at end
         if self.music_list.verticalScrollBar().value() == self.load_more_threshold:
             keywords = self.parent.header.search_line.text()
 
-            search_result = self.api.search(self.load_page, keywords)
+            api = QQMusicApi()
+            search_result = api.search(self.load_page, keywords)
             for item in search_result:
                 qt_item = QTreeWidgetItem()
 
@@ -481,8 +517,8 @@ class Mainlist(QScrollArea):
                 qt_item.setText(1, singers)
 
                 qt_item.setText(2, item['album_name'])
-                qt_item.setText(3, self.api.convert_interval(item['interval']))
-                qt_item.setText(4, item['song_mid'])
+                qt_item.setText(3, convert_interval(item['interval']))
+                qt_item.setText(4, str(item['song_mid']))
                 qt_item.setText(5, item['image_url'])
 
                 self.parent.main_list.music_list.addTopLevelItem(qt_item)
@@ -797,7 +833,7 @@ class PlayWidgets(QFrame):
 
         # set time_info and slider
         self.time.setText(
-            api.convert_interval(current_time)+'/'+total_time)
+            convert_interval(current_time)+'/'+total_time)
         self.slider.setValue(
             current_time/(self.player.duration()//1000) * 1000)
         

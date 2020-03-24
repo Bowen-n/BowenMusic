@@ -5,7 +5,7 @@
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
 
 ### Screenshot
-![demo](demo/screenshot.jpg)
+![demo](demo/screenshot2.jpg)
 ### Progress
 2020.3.10 - 2020.3.15
 * QQ Music API 调研已完成，可获取歌信息和URL，会员歌曲需要绿钻用户Cookie
@@ -31,7 +31,7 @@
 * 完成歌单播放，对于本地音乐和歌单，播放里面的一首歌就将本地或对应歌单的所有歌加入后台播放列表中，并完成顺序、单曲循环、随机播放三种模式的功能
 
 2020.3.23
-* 完成网易云搜索歌曲（专辑、歌手）API，对post参数AES+RSA加密
+* 完成网易云搜索歌曲（专辑、歌手）API，完成[网易云API文档](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
 * 问题
   ```python 
   from Crypto.Cipher import AES
@@ -41,7 +41,9 @@
   from Cryptodome.Cipher import AES
   ```
 
-
+2020.3.24
+* 将选择音乐源放在Navigation栏的在线音乐中
+* 网易云搜索、播放、加入歌单功能的实现
 
 ### TODO
 * [x] 网易云音乐API

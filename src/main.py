@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from threading import Thread
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -8,7 +9,8 @@ from PyQt5.QtMultimedia import *
 from PyQt5.QtWidgets import *
 
 from config import ConfigHeader
-from module import Header, Navigation, PlayWidgets, Mainlist
+from module import Header, Mainlist, Navigation, PlayWidgets
+
 
 class Window(QWidget):
     def __init__(self):
@@ -84,6 +86,7 @@ class Window(QWidget):
         self.main_list.play_global_signal.connect(self.player.play_from_main_list, Qt.QueuedConnection)
         self.main_list.pause_signal.connect(self.player.pause, Qt.QueuedConnection)
         self.player.music_end_signal.connect(self.player.next_song)
+        self.navigation.search_music_signal.connect(lambda: Thread(target=self.header.search).start(), Qt.QueuedConnection)
 
 
 app = QApplication(sys.argv)
