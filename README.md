@@ -1,5 +1,5 @@
 # BowenMusic
-基于PyQt5的音乐播放器，目前只支持QQ音乐
+基于PyQt5的音乐播放器，目前已支持QQ、网易云、咪咕音乐
 
 ### API
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
