@@ -5,7 +5,7 @@
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
 
 ### Screenshot
-![demo](demo/screenshot2.jpg)
+![demo](demo/screenshot3.jpg)
 ### Progress
 2020.3.10 - 2020.3.15
 * QQ Music API 调研已完成，可获取歌信息和URL，会员歌曲需要绿钻用户Cookie
@@ -43,11 +43,14 @@
 
 2020.3.24
 * 将选择音乐源放在Navigation栏的在线音乐中
-* 网易云搜索、播放、加入歌单功能的实现
+* 添加网易云搜索、播放、加入歌单功能
+* 完成咪咕音乐API
+* 添加咪咕搜索、播放、加入歌单功能
+
 
 ### TODO
 * [x] 网易云音乐API
-* [ ] 咪咕音乐API
+* [x] 咪咕音乐API
 * [ ] 添加歌单功能
 * [ ] Player排版问题（歌名长度不一致）
 * [ ] 从歌单中删除歌

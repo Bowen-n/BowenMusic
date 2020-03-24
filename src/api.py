@@ -98,7 +98,7 @@ class QQMusicApi():
             'accept': 'application/json, text/javascript, */*; q=0.01',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            # 'cookie': vip songs need vip's cookie 
+            # 'cookie': # vip songs need vip's cookie 
             'origin': 'https://y.qq.com',
             'referer': 'https://y.qq.com/portal/player.html',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
@@ -219,18 +219,56 @@ class NeteaseCloudMusicAPI():
         }
 
 
+class MiguMusicAPI():
+    def __init__(self):
+        self.headers = {
+            'Host': 'm.music.migu.cn',
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Mobile Safari/537.36',
+        }
+        self.url = 'http://m.music.migu.cn/migu/remoting/scr_search_tag?'
+        self.name = 'migu'
 
+    def search(self, keyword):
+        params = {
+            'rows': 20,
+            'type': 2,
+            'keyword': keyword,
+            'pgc': 1
+        }
+
+        response = requests.get(self.url, params, headers=self.headers)
+        result = json.loads(response.text)
+        result = result['musics']
+
+        search_result = []
+        for item in result:
+            # print(item)
+            info = {}
+            info['song_name'] = item['songName']
+            info['song_mid'] = item['id']
+            info['album_name'] = item['albumName']
+            info['album_mid'] = item['albumId']
+            info['interval'] = None
+            info['singer_list'] = item['singerName']
+            info['url'] = item['mp3']
+            search_result.append(info)
+
+        return search_result
+
+# test NeteaseCloudMusicAPI
 # keyword = '我的一个道姑朋友'
 # api = NeteaseCloudMusicAPI()
 # print(api.search(keyword, 1))
 # print(api.get_url(song_id='1367452194'))
 
+# test MiguMusicAPI
+# api = MiguMusicAPI()
+# print(api.search('告白气球'))
 
 
 # test QQMusicApi
 # api = QQMusicApi()
 # search_result = api.search('告白气球')
-
 # url = api.get_url(search_result[0]['song_mid'])
 # print(url)
 # urllib.request.urlretrieve(url, '告白气球.m4a')
