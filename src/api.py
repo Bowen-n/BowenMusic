@@ -95,10 +95,7 @@ class QQMusicApi():
         vkey_url = "https://u.y.qq.com/cgi-bin/musicu.fcg?-=getplaysongvkey9649193568019525&g_tk=105169251&loginUin=501894013&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&data=%7B%22req%22%3A%7B%22module%22%3A%22CDN.SrfCdnDispatchServer%22%2C%22method%22%3A%22GetCdnDispatch%22%2C%22param%22%3A%7B%22guid%22%3A%224120992304%22%2C%22calltype%22%3A0%2C%22userip%22%3A%22%22%7D%7D%2C%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%224120992304%22%2C%22songmid%22%3A%5B%22{}%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%22501894013%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A501894013%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D".format(song_mid)
 
         headers = {
-            'accept': 'application/json, text/javascript, */*; q=0.01',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            # 'cookie': # vip songs need vip's cookie 
+            'cookie': self._load_cookie('userdata/cookie/cookie.json'),
             'origin': 'https://y.qq.com',
             'referer': 'https://y.qq.com/portal/player.html',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
@@ -109,10 +106,24 @@ class QQMusicApi():
         purl = result['req_0']['data']['midurlinfo'][0]['purl']
         
         if purl == "":
-            print('no purl')
+            # print('no purl')
             return None
 
         return self.sip + purl
+
+
+    def _load_cookie(self, filepath):
+        cookie_str = ''
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                cookies = json.load(f)
+                for cookie in cookies:
+                    name = cookie['name']
+                    value = cookie['value']
+                    cookie_str += '{}={}; '.format(name, value)
+        else:
+            print('Cookie file not exists.')
+        return cookie_str
 
 
     def _request(self, url, params=None, headers=None):
@@ -268,7 +279,7 @@ class MiguMusicAPI():
 
 # test QQMusicApi
 # api = QQMusicApi()
-# search_result = api.search('告白气球')
+# search_result = api.search(1, '晴天')
 # url = api.get_url(search_result[0]['song_mid'])
 # print(url)
 # urllib.request.urlretrieve(url, '告白气球.m4a')

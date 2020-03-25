@@ -1,5 +1,5 @@
 # BowenMusic
-基于PyQt5的音乐播放器，目前已支持QQ、网易云、咪咕音乐
+基于PyQt5的音乐播放器，目前只支持QQ音乐
 
 ### API
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
@@ -47,6 +47,17 @@
 * 完成咪咕音乐API
 * 添加咪咕搜索、播放、加入歌单功能
 
+2020.3.25
+* *webdriver.py* :使用selenium自动登录QQ音乐网页并获取cookie保存json文件，需在`self.account`和`self.password`中填入账号密码
+```python 
+class QQMusicWebdriver():
+    def __init__(self):
+        self.browser = webdriver.Chrome()
+        self.browser.get('https://y.qq.com/')
+        self.account = ''  # your qq id
+        self.password = '' # your password
+```
+* QQMusicAPI中增加从本地json文件读取cookie
 
 ### TODO
 * [x] 网易云音乐API
