@@ -2,11 +2,14 @@
 QPushButton#close_button, QPushButton#min_button{
     color: #8C90AA;
     font-size: 25px;
+    font-weight: bold;
     background-color:#1A2F60;
     border: none;
 }
 
-
+QPushButton#close_button:hover, QPushButton#min_button:hover{
+    color: #324877;
+}
 
 QLabel{
     font: 40 10pt "Microsoft YaHei";

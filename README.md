@@ -60,9 +60,12 @@ class QQMusicWebdriver():
 * QQMusicAPI中增加从本地json文件读取cookie
 * 针对没有QQvip的cookie而无法下载歌曲的处理
 
+2020.3.26
+* 新建歌单功能
+
 ### TODO
 * [x] 网易云音乐API
 * [x] 咪咕音乐API
-* [ ] 添加歌单功能
+* [x] 添加歌单功能
 * [ ] Player排版问题（歌名长度不一致）
 * [ ] 从歌单中删除歌

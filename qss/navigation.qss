@@ -17,6 +17,15 @@ QLabel {
     font: 40 11pt "Microsoft YaHei";
 }
 
+QPushButton {
+    border-image: url('resource/add.png');
+}
+
+QPushButton:hover {
+    border-image: url('resource/add_hover.png');
+}
+
+
 QListWidget {
     padding-left: 50px;
     background: #1A2F60;

@@ -212,6 +212,11 @@ class Navigation(QScrollArea):
         self.setWidgetResizable(True)
         self.frame.setMinimumWidth(300)
 
+        with open('userdata/playlistinfo.json', 'r') as f:
+            info = json.load(f)
+            self.new_playlist_count = info['new_playlist_count']
+        self.new_playlist_count = 1
+        self.playlist_count = 0
 
         with open('qss/navigation.qss', 'r') as f:
             style = f.read()
@@ -220,10 +225,12 @@ class Navigation(QScrollArea):
 
         self._set_labels()
         self._set_list_views()
+        self._set_buttons()
         self._set_layouts()
 
 
     def _set_labels(self):
+
         self.online_music = QLabel("在线音乐")
         self.online_music.setObjectName('online_music')
         self.online_music.setMaximumHeight(27)
@@ -235,6 +242,18 @@ class Navigation(QScrollArea):
         self.list_label = QLabel("创建的歌单")
         self.list_label.setObjectName("list_label")
         self.list_label.setMaximumHeight(27)
+
+    def _set_buttons(self):
+        ''' create a song list button '''
+        self.create_list = QPushButton(self)
+        # self.create_list.setIcon(QIcon('resource/add.png'))
+        self.create_list.setObjectName('create_list_button')
+        self.create_list.setMinimumSize(23, 23)
+        self.create_list.setMaximumSize(23, 23)
+        self.create_list.setStyle(QStyleFactory.create('Fusion'))
+        self.create_list.setCursor(Qt.PointingHandCursor)
+
+        self.create_list.clicked.connect(self._create_playlist)
 
     
     def _set_list_views(self):
@@ -262,14 +281,14 @@ class Navigation(QScrollArea):
         for file_path in os.listdir('userdata/playlist'):
             list_name = file_path.split('.')[0]
             self.play_list.addItem(QListWidgetItem('  '+list_name))
-        
+            self.playlist_count += 1
+      
         self.play_list.itemClicked.connect(self._music_list)
     
 
     def _discover_music(self):
         self.parent.main_list.display_mode = 'global'
         self.parent.main_list.music_list.clear()
-        
         
         if self.navigation_list.currentRow() == 0:
             self.parent.header.music_source = 'qq'
@@ -287,6 +306,7 @@ class Navigation(QScrollArea):
     
 
     def _local_music(self):
+        ''' display local music in main_list '''
         self.navigation_list.setCurrentItem(None)
         self.play_list.setCurrentItem(None)
         self.parent.main_list.music_list.clear()
@@ -319,6 +339,7 @@ class Navigation(QScrollArea):
 
 
     def _music_list(self):
+        ''' display playlist in main_list '''
         self.navigation_list.setCurrentItem(None)
         self.local_list.setCurrentItem(None)
         self.parent.main_list.music_list.clear()
@@ -347,6 +368,39 @@ class Navigation(QScrollArea):
             self.parent.main_list.music_list.addTopLevelItem(qt_item)
 
 
+    def _create_playlist(self):
+        self.play_list.addItem(QListWidgetItem())
+        new_item = self.play_list.item(self.playlist_count)
+        new_line_edit = QLineEdit('新建歌单{}'.format(self.new_playlist_count))
+        self.play_list.setItemWidget(new_item, new_line_edit)
+
+        new_line_edit.returnPressed.connect(lambda: self.__new_playlist(new_item, new_line_edit))
+
+    def __new_playlist(self, new_item, new_line_edit):
+        playlist_name = new_line_edit.text()
+        print(playlist_name)
+        if playlist_name == '新建歌单{}'.format(self.new_playlist_count):
+            self.new_playlist_count += 1
+        else:
+            old_names = []
+            for file_path in os.listdir('userdata/playlist'):
+                old_names.append(file_path.split('.')[0])
+            if playlist_name in old_names:
+                playlist_name = '新建歌单{}'.format(self.new_playlist_count)
+                self.new_playlist_count += 1
+
+        self.play_list.removeItemWidget(new_item)
+        new_item.setText('  '+playlist_name)
+        self.playlist_count += 1
+        # create json file
+        with open('userdata/playlist/{}.json'.format(playlist_name), 'w') as f:
+            f.write('[]')
+
+        # dump new_playlist_count
+        info = {'new_playlist_count': self.new_playlist_count}
+        with open('userdata/playlistinfo.json', 'w') as f:
+            json.dump(info, f, indent=1)
+
 
     def _set_layouts(self):
         self.main_layout = QVBoxLayout(self.frame)
@@ -363,7 +417,11 @@ class Navigation(QScrollArea):
         self.main_layout.addWidget(self.local_list)
         self.main_layout.addSpacing(20)
 
-        self.main_layout.addWidget(self.list_label)
+        self.song_list_layout = QHBoxLayout()
+        self.song_list_layout.addWidget(self.list_label)
+        self.song_list_layout.addWidget(self.create_list)
+
+        self.main_layout.addLayout(self.song_list_layout)
         self.main_layout.addSpacing(15)
         self.main_layout.addWidget(self.play_list)
         self.main_layout.addSpacing(1)
@@ -372,7 +430,7 @@ class Navigation(QScrollArea):
         self.setContentsMargins(0, 0, 0, 0)
 
 
-class Mainlist(QScrollArea):
+class Mainlist(QScrollArea):    
     ''' song QTreeWidget 
     0: song_name
     1: singers
@@ -516,6 +574,9 @@ class Mainlist(QScrollArea):
             
             if source != 'migu':
                 url = api.get_url(song_mid)
+                if url is None:
+                    self.parent.player.song_info.setText('该歌曲需要vip')
+                    return
             else: # if migu, qtreeitem.text(5) is url
                 url = qtree_item.text(5) 
             music_path = 'userdata/music/{}_{}.m4a'.format(song_name, song_mid)
