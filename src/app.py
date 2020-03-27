@@ -8,7 +8,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtWidgets import *
 
-from config import ConfigHeader
 from module import Header, Mainlist, Navigation, PlayWidgets
 
 
@@ -29,7 +28,6 @@ class Window(QWidget):
 
         self.set_lines()
         self.set_layouts()
-        self.config_functions()
         self.config_signals()
         self.proper_place()
 
@@ -78,9 +76,6 @@ class Window(QWidget):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.main_layout)
     
-
-    def config_functions(self):
-        self.header.config = ConfigHeader(self.header)
 
     def config_signals(self):
         self.main_list.play_global_signal.connect(self.player.play_from_main_list, Qt.QueuedConnection)

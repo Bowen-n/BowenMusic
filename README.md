@@ -73,3 +73,4 @@ class QQMusicWebdriver():
 * [x] 添加歌单功能
 * [ ] Player排版问题（歌名长度不一致）
 * [ ] 从歌单中删除歌
+* [ ] 添加命令行版本，以 [mpg123](http://www.mpg123.de/) 播放器为基础

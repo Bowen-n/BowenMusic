@@ -45,6 +45,7 @@ class Header(QFrame):
         self.close_button.setMaximumSize(60, 35)
         self.close_button.setStyle(QStyleFactory.create('Fusion'))
         self.close_button.setCursor(Qt.PointingHandCursor)
+        self.close_button.clicked.connect(self.parent.close)
 
         self.min_button = QPushButton('—', self)
         self.min_button.setObjectName('min_button')
@@ -52,7 +53,7 @@ class Header(QFrame):
         self.min_button.setMaximumSize(60, 35)
         self.min_button.setStyle(QStyleFactory.create('Fusion'))
         self.min_button.setCursor(Qt.PointingHandCursor)
-
+        self.min_button.clicked.connect(self.parent.showMinimized)
         # self.max_button = QPushButton('口')
         # self.max_button.setObjectName('max_button')
         # self.max_button.setMaximumSize(16, 16)
@@ -373,15 +374,23 @@ class Navigation(QScrollArea):
 
         action = menu.exec_(self.play_list.mapToGlobal(pos))
         item = self.play_list.currentItem()
+        item_row = self.play_list.currentRow()
 
         if action == rename:
-            old_name = item.text()
+            old_name = item.text().strip()
             rename_line_edit = QLineEdit(old_name)
             self.play_list.setItemWidget(item, rename_line_edit)
             rename_line_edit.setFocus()
-            rename_line_edit.returnPressed.connect(lambda: self.__rename_playlist(item, rename_line_edit, old_name))
+            # rename_line_edit.returnPressed.connect(lambda: self.__rename_playlist(item, rename_line_edit, old_name))
             rename_line_edit.editingFinished.connect(lambda: self.__rename_playlist(item, rename_line_edit, old_name))
         elif action == remove:
+            playlist_name = item.text().strip()
+            self.play_list.takeItem(item_row)
+            try:
+                os.remove('userdata/playlist/{}.json'.format(playlist_name))
+                self.playlist_count -= 1
+            except:
+                return
 
     
     def __rename_playlist(self, item, rename_line_edit, old_name):
@@ -390,7 +399,7 @@ class Navigation(QScrollArea):
             if new_name == file_path.split('.')[0]:
                 new_name = old_name
                 break
-        
+
         self.play_list.removeItemWidget(item)
         item.setText('  '+new_name)
         if new_name != old_name:
@@ -407,19 +416,18 @@ class Navigation(QScrollArea):
         self.index = 1
         for file_path in os.listdir('userdata/playlist'):
             name = file_path.split('.')[0]
-            if name == '新建歌单{}'.format(index):
+            if name == '新建歌单{}'.format(self.index):
                 self.index += 1
 
         new_line_edit = QLineEdit('新建歌单{}'.format(self.index))
         
         self.play_list.setItemWidget(new_item, new_line_edit)
         new_line_edit.setFocus()
-        new_line_edit.returnPressed.connect(lambda: self.__new_playlist(new_item, new_line_edit))
+        # new_line_edit.returnPressed.connect(lambda: self.__new_playlist(new_item, new_line_edit))
         new_line_edit.editingFinished.connect(lambda: self.__new_playlist(new_item, new_line_edit))
 
     def __new_playlist(self, new_item, new_line_edit):
         playlist_name = new_line_edit.text()
-        print(playlist_name)
 
         if playlist_name != '新建歌单{}'.format(self.index):
             for file_path in os.listdir('userdata/playlist'):
@@ -832,6 +840,7 @@ class PlayWidgets(QFrame):
         '''
         self.play_mode = mode
         # button
+        self.slider.setValue(0)
         self.play_button.hide()
         self.pause_button.show()
         # play list clear
@@ -922,6 +931,7 @@ class PlayWidgets(QFrame):
 
 
         self.pause()
+        self.slider.setValue(0)
 
         # if local exists
         for music_file in os.listdir('userdata/music'):
