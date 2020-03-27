@@ -63,6 +63,10 @@ class QQMusicWebdriver():
 2020.3.26
 * 新建歌单功能
 
+2020.3.27
+* 删除、重命名歌单
+* 新建歌单后的QLineEdit焦点设置
+
 ### TODO
 * [x] 网易云音乐API
 * [x] 咪咕音乐API

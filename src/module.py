@@ -212,10 +212,6 @@ class Navigation(QScrollArea):
         self.setWidgetResizable(True)
         self.frame.setMinimumWidth(300)
 
-        with open('userdata/playlistinfo.json', 'r') as f:
-            info = json.load(f)
-            self.new_playlist_count = info['new_playlist_count']
-        self.new_playlist_count = 1
         self.playlist_count = 0
 
         with open('qss/navigation.qss', 'r') as f:
@@ -277,12 +273,15 @@ class Navigation(QScrollArea):
         self.play_list = QListWidget()
         self.play_list.setObjectName('play_list')
         self.play_list.setMaximumWidth(210)
+        self.play_list.setMinimumHeight(300)
         # add song list
         for file_path in os.listdir('userdata/playlist'):
             list_name = file_path.split('.')[0]
             self.play_list.addItem(QListWidgetItem('  '+list_name))
             self.playlist_count += 1
       
+        self.play_list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.play_list.customContextMenuRequested.connect(self._playlist_right_menu)
         self.play_list.itemClicked.connect(self._music_list)
     
 
@@ -367,39 +366,74 @@ class Navigation(QScrollArea):
 
             self.parent.main_list.music_list.addTopLevelItem(qt_item)
 
+    def _playlist_right_menu(self, pos):
+        menu = QMenu(self.play_list)
+        rename = menu.addAction("重命名")
+        remove = menu.addAction("删除")
+
+        action = menu.exec_(self.play_list.mapToGlobal(pos))
+        item = self.play_list.currentItem()
+
+        if action == rename:
+            old_name = item.text()
+            rename_line_edit = QLineEdit(old_name)
+            self.play_list.setItemWidget(item, rename_line_edit)
+            rename_line_edit.setFocus()
+            rename_line_edit.returnPressed.connect(lambda: self.__rename_playlist(item, rename_line_edit, old_name))
+            rename_line_edit.editingFinished.connect(lambda: self.__rename_playlist(item, rename_line_edit, old_name))
+        elif action == remove:
+
+    
+    def __rename_playlist(self, item, rename_line_edit, old_name):
+        new_name = rename_line_edit.text()
+        for file_path in os.listdir('userdata/playlist'):
+            if new_name == file_path.split('.')[0]:
+                new_name = old_name
+                break
+        
+        self.play_list.removeItemWidget(item)
+        item.setText('  '+new_name)
+        if new_name != old_name:
+            os.rename(
+                'userdata/playlist/{}.json'.format(old_name), 
+                'userdata/playlist/{}.json'.format(new_name))
+
+
 
     def _create_playlist(self):
         self.play_list.addItem(QListWidgetItem())
         new_item = self.play_list.item(self.playlist_count)
-        new_line_edit = QLineEdit('新建歌单{}'.format(self.new_playlist_count))
-        self.play_list.setItemWidget(new_item, new_line_edit)
 
+        self.index = 1
+        for file_path in os.listdir('userdata/playlist'):
+            name = file_path.split('.')[0]
+            if name == '新建歌单{}'.format(index):
+                self.index += 1
+
+        new_line_edit = QLineEdit('新建歌单{}'.format(self.index))
+        
+        self.play_list.setItemWidget(new_item, new_line_edit)
+        new_line_edit.setFocus()
         new_line_edit.returnPressed.connect(lambda: self.__new_playlist(new_item, new_line_edit))
+        new_line_edit.editingFinished.connect(lambda: self.__new_playlist(new_item, new_line_edit))
 
     def __new_playlist(self, new_item, new_line_edit):
         playlist_name = new_line_edit.text()
         print(playlist_name)
-        if playlist_name == '新建歌单{}'.format(self.new_playlist_count):
-            self.new_playlist_count += 1
-        else:
-            old_names = []
+
+        if playlist_name != '新建歌单{}'.format(self.index):
             for file_path in os.listdir('userdata/playlist'):
-                old_names.append(file_path.split('.')[0])
-            if playlist_name in old_names:
-                playlist_name = '新建歌单{}'.format(self.new_playlist_count)
-                self.new_playlist_count += 1
+                if playlist_name == file_path.split('.')[0]:
+                    playlist_name = '新建歌单{}'.format(self.index)
+                    break
 
         self.play_list.removeItemWidget(new_item)
         new_item.setText('  '+playlist_name)
         self.playlist_count += 1
+
         # create json file
         with open('userdata/playlist/{}.json'.format(playlist_name), 'w') as f:
             f.write('[]')
-
-        # dump new_playlist_count
-        info = {'new_playlist_count': self.new_playlist_count}
-        with open('userdata/playlistinfo.json', 'w') as f:
-            json.dump(info, f, indent=1)
 
 
     def _set_layouts(self):
