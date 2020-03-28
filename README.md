@@ -1,5 +1,6 @@
 # BowenMusic
-基于PyQt5的音乐播放器，目前已支持qq音乐、网易云音乐、咪咕音乐
+**Project for IS305**: 基于PyQt5的音乐播放器，目前已支持qq音乐、网易云音乐、咪咕音乐。
+
 
 ### API
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
@@ -78,4 +79,4 @@ class QQMusicWebdriver():
 * [x] 添加歌单功能
 * [ ] Player排版问题（歌名长度不一致）
 * [x] 从歌单中删除歌
-* [ ] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 
+* [ ] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 暂时考虑用`pygame`
