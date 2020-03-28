@@ -261,7 +261,7 @@ class Navigation(QScrollArea):
         self.navigation_list.addItem(QListWidgetItem(QIcon('resource/qq_music.png'), "QQ音乐"))
         self.navigation_list.addItem(QListWidgetItem(QIcon('resource/netease_music.png'), '网易云音乐'))
         self.navigation_list.addItem(QListWidgetItem(QIcon('resource/migu.png'), '咪咕音乐'))
-        self.navigation_list.itemClicked.connect(self._discover_music)
+        self.navigation_list.itemClicked.connect(self.discover_music)
         # self.navigation_list.setCurrentRow(0)
 
         self.local_list = QListWidget()
@@ -269,7 +269,7 @@ class Navigation(QScrollArea):
         self.local_list.setMaximumHeight(100)
         self.local_list.setMaximumWidth(210)
         self.local_list.addItem(QListWidgetItem(QIcon('resource/local.png'), "本地音乐"))
-        self.local_list.itemClicked.connect(self._local_music)
+        self.local_list.itemClicked.connect(self.local_music)
 
         self.play_list = QListWidget()
         self.play_list.setObjectName('play_list')
@@ -283,10 +283,10 @@ class Navigation(QScrollArea):
       
         self.play_list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.play_list.customContextMenuRequested.connect(self._playlist_right_menu)
-        self.play_list.itemClicked.connect(self._music_list)
+        self.play_list.itemClicked.connect(self.music_list)
     
 
-    def _discover_music(self):
+    def discover_music(self):
         self.parent.main_list.display_mode = 'global'
         self.parent.main_list.music_list.clear()
         
@@ -305,7 +305,7 @@ class Navigation(QScrollArea):
         self.play_list.setCurrentItem(None)
     
 
-    def _local_music(self):
+    def local_music(self):
         ''' display local music in main_list '''
         self.navigation_list.setCurrentItem(None)
         self.play_list.setCurrentItem(None)
@@ -313,6 +313,8 @@ class Navigation(QScrollArea):
         self.parent.main_list.display_mode = 'local'
 
         for file_path in os.listdir('userdata/music'):
+            if '.m4a' not in file_path and '.mp3' not in file_path and '.flac' not in file_path:
+                continue
             path = os.path.join('userdata/music', file_path)
             media_info = json.loads(MediaInfo.parse(path).to_json())['tracks'][0]
 
@@ -338,7 +340,7 @@ class Navigation(QScrollArea):
             self.parent.main_list.music_list.addTopLevelItem(qt_item)
 
 
-    def _music_list(self):
+    def music_list(self):
         ''' display playlist in main_list '''
         self.navigation_list.setCurrentItem(None)
         self.local_list.setCurrentItem(None)
@@ -542,49 +544,106 @@ class Mainlist(QScrollArea):
 
     
     def _right_menu(self, pos):
-        if self.display_mode != 'global':
-            return
+        ''' right button menu in main list
+        mode is 'global': play and add to playlist
+        mode is 'local' : play and delete local music file
+        mode is 'list'  : play and remove from playlist
+        '''
+
         menu = QMenu(self.music_list)
-        play = menu.addAction("播放")
-        add_action = []
-        _play_list = []
-
-        self.play_list_dir = 'userdata/playlist'
-        for file_path in os.listdir(self.play_list_dir):
-            list_name = file_path.split('.')[0]
-            _play_list.append(list_name)
-            add_action.append(menu.addAction("添加到{}".format(list_name)))
-
-        action = menu.exec_(self.music_list.mapToGlobal(pos))
         item = self.music_list.currentItem()
+        index = self.music_list.currentIndex()
 
-        if action == play:
-            Thread(target=self._play_music, args=(item,)).start()
+        if self.display_mode == 'global':
 
-        elif action in add_action:
-            # get music info dict
-            music_info = {}
-            music_info['source'] = self.parent.header.music_source
-            music_info['song_name'] = item.text(0)
-            music_info['singers'] = item.text(1)
-            music_info['album_name'] = item.text(2)
-            music_info['interval'] = item.text(3)
-            music_info['song_mid'] = item.text(4)
-            music_info['url'] = item.text(5)
-            music_info['source'] = item.text(6)
+            # add action choices
+            play = menu.addAction("播放")
+            add_action = []
+            _play_list = []
+            self.play_list_dir = 'userdata/playlist'
+            for file_path in os.listdir(self.play_list_dir):
+                list_name = file_path.split('.')[0]
+                _play_list.append(list_name)
+                add_action.append(menu.addAction("添加到{}".format(list_name)))
+            action = menu.exec_(self.music_list.mapToGlobal(pos))
 
-            # get song list json file path
-            list_name = _play_list[add_action.index(action)]
-            list_path = os.path.join(self.play_list_dir, '{}.json'.format(list_name))
+            # do action
+            if action == play:
+                Thread(target=self._play_music, args=(item,)).start()
+            elif action in add_action:
+                # get music info dict
+                music_info = {}
+                music_info['source'] = self.parent.header.music_source
+                music_info['song_name'] = item.text(0)
+                music_info['singers'] = item.text(1)
+                music_info['album_name'] = item.text(2)
+                music_info['interval'] = item.text(3)
+                music_info['song_mid'] = item.text(4)
+                music_info['url'] = item.text(5)
+                music_info['source'] = item.text(6)
 
-            with open(list_path, 'r') as f:
-                song_list = json.load(f)
-            song_list.append(music_info)
+                # get song list json file path
+                list_name = _play_list[add_action.index(action)]
+                list_path = os.path.join(self.play_list_dir, '{}.json'.format(list_name))
 
-            with open(list_path, 'w') as f:
-                json.dump(song_list, f, indent=1)
+                with open(list_path, 'r') as f:
+                    song_list = json.load(f)
+                song_list.append(music_info)
 
-            print('Add {} success.'.format(music_info['song_name']))
+                with open(list_path, 'w') as f:
+                    json.dump(song_list, f, indent=1)
+
+                print('Add {} success.'.format(music_info['song_name']))
+        
+        elif self.display_mode == 'local':
+            # add action choices
+            play = menu.addAction("播放")
+            delete = menu.addAction("从本地删除")
+            action = menu.exec_(self.music_list.mapToGlobal(pos))
+
+            song_mid = item.text(4)
+            # do action
+            if action == play:
+                Thread(target=self._play_music, args=(item,)).start()
+            elif action == delete:
+                # try os.remove
+                try:
+                    for file_path in os.listdir('userdata/music'):
+                        if song_mid in file_path:
+                            os.remove(os.path.join('userdata/music', file_path))
+                            break
+                    self.parent.navigation.local_music()
+                except:
+                    # can't remove
+                    return
+        
+        elif self.display_mode == 'list':
+            # add action choices
+            play = menu.addAction("播放")
+            remove = menu.addAction("从歌单删除")
+            action = menu.exec_(self.music_list.mapToGlobal(pos))
+
+            song_mid = item.text(4)
+            # do action
+            if action == play:
+                Thread(target=self._play_music, args=(item,)).start()
+            elif action == remove:
+                # get playlist json file
+                playlist_name = self.parent.navigation.play_list.currentItem().text().strip()
+                for file_path in os.listdir('userdata/playlist'):
+                    if file_path.split('.')[0] == playlist_name:
+                        json_path = os.path.join('userdata/playlist', file_path)
+                        break
+                # remove from json file
+                with open(json_path, 'r') as f:
+                    songs = json.load(f)
+                for song in songs:
+                    if song['song_mid'] == song_mid:
+                        songs.remove(song)
+                        break
+                with open(json_path, 'w') as f:
+                    json.dump(songs, f, indent=1)
+                self.parent.navigation.music_list()
 
 
     def _play_music(self, qtree_item):

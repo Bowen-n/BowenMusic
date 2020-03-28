@@ -5,7 +5,7 @@
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
 
 ### Screenshot
-![demo](demo/screenshot3.jpg)
+![demo](demo/screenshot4.jpg)
 ### Progress
 2020.3.10 - 2020.3.15
 * QQ Music API 调研已完成，可获取歌信息和URL，会员歌曲需要绿钻用户Cookie
@@ -67,10 +67,15 @@ class QQMusicWebdriver():
 * 删除、重命名歌单
 * 新建歌单后的QLineEdit焦点设置
 
+2020.3.28
+* 本地音乐中增加播放、从本地删除功能
+* 歌单中增加播放、从歌单删除功能
+* 如果userdata/music中有其他奇怪的文件会报错的问题
+
 ### TODO
 * [x] 网易云音乐API
 * [x] 咪咕音乐API
 * [x] 添加歌单功能
 * [ ] Player排版问题（歌名长度不一致）
-* [ ] 从歌单中删除歌
-* [ ] 添加命令行版本，以 [mpg123](http://www.mpg123.de/) 播放器为基础
+* [x] 从歌单中删除歌
+* [ ] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 
