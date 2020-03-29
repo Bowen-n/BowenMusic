@@ -1,6 +1,21 @@
 # BowenMusic
 **Project for IS305**: 基于PyQt5的音乐播放器，目前已支持qq音乐、网易云音乐、咪咕音乐。
 
+### Structure
+```
+|-- qss                    .qss file for the style of GUI
+|-- resource               icons
+|-- src                    codes
+|---- api.py               APIs of qq/neteasecloud/migu music
+|---- component.py         Widgets inherit from `QLabel` and `QLineEdit`
+|---- module.py            Four main modules: Header, Navigation, Mainlist, PlayWidgets
+|---- MusicDesktop.py      Main window
+|---- webdriver.py         Get qq music cookies using Selenium
+|-- userdata               cookie, download music and playlist created by the user
+```
+### Use
+`$ pip install -r requirements.txt`
+`$ python ./src/MusicDesktop.py`
 
 ### API
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
