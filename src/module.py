@@ -14,7 +14,7 @@ from PyQt5.QtMultimedia import *
 from PyQt5.QtWidgets import *
 
 from api import QQMusicApi, NeteaseCloudMusicAPI, MiguMusicAPI, convert_interval
-from component import ImgLabel, SearchLineEdit
+from component import ImgLabel, SearchLineEdit, ScrollLabel
 
 
 class Header(QFrame):
@@ -473,7 +473,6 @@ class Navigation(QScrollArea):
         self.main_layout.addStretch(1)
         self.setContentsMargins(0, 0, 0, 0)
 
-
 class Mainlist(QScrollArea):    
     ''' song QTreeWidget 
     0: song_name
@@ -728,8 +727,6 @@ class Mainlist(QScrollArea):
         self.main_layout = QVBoxLayout(self)
         self.main_layout.addWidget(self.music_list)
         self.setLayout(self.main_layout)
-    
-
 
 class PlayWidgets(QFrame):
     ''' Play button, song bar, volume adjustment
@@ -801,18 +798,23 @@ class PlayWidgets(QFrame):
         self.no_volume.setCursor(Qt.PointingHandCursor)
 
         # play mode
+        play_mode_button_width = 50
         self.single = QPushButton(self)
         self.single.setObjectName('single')
         self.single.hide()
         self.single.setToolTip('单曲循环')
         self.single.clicked.connect(self.__single_mode)
         self.single.setCursor(Qt.PointingHandCursor)
+        self.single.setMinimumWidth(play_mode_button_width)
+        self.single.setMaximumWidth(play_mode_button_width)
 
         self.repeat = QPushButton(self)
         self.repeat.setObjectName('repeat')
         self.repeat.setToolTip('列表循环')
         self.repeat.clicked.connect(self.__repeat_mode)
         self.repeat.setCursor(Qt.PointingHandCursor)
+        self.repeat.setMinimumWidth(play_mode_button_width)
+        self.repeat.setMaximumWidth(play_mode_button_width)
 
         self.shuffle = QPushButton(self)
         self.shuffle.setObjectName('shuffle')
@@ -820,23 +822,23 @@ class PlayWidgets(QFrame):
         self.shuffle.setToolTip('随机播放')
         self.shuffle.clicked.connect(self.__shuffle_mode)
         self.shuffle.setCursor(Qt.PointingHandCursor)
-    
+        self.shuffle.setMinimumWidth(play_mode_button_width)
+        self.shuffle.setMaximumWidth(play_mode_button_width)
 
     def _set_labels(self):
         ''' time label: current time and total time '''
         self.time = QLabel(self)
         self.time.setText('00:00/00:00')
         self.song_info = QLabel(self)
+        self.song_info.setMaximumWidth(300) # fix the position of song_info label
+        self.song_info.setMinimumWidth(300) # which will not be influenced by the length of text inside
         self.song_info.setText('BowenMusic')
-        # self.album_img = ImgLabel('resource/logo2.png', 90, 70)
-        # self.song_info.setText('晴天-周杰伦')
     
     def _set_sliders(self):
         ''' song's progress bar '''
         self.slider = QSlider(self)
         self.slider.setObjectName('slider')
-        # self.slider.setMinimumHeight(5)
-        # self.slider.setMaximumHeight(5)
+
         self.slider.setMinimumWidth(1300)
         self.slider.setMaximumWidth(1300)
 
@@ -863,12 +865,10 @@ class PlayWidgets(QFrame):
         self.main_layout.addWidget(self.slider)
 
         self.down_layout = QHBoxLayout()
-        # self.down_layout.addWidget(self.album_img)
-        # self.down_layout.addSpacing(70)
+        self.down_layout.setSpacing(0)
         self.down_layout.addWidget(self.song_info)
-        self.down_layout.addStretch(1)
-        # self.down_layout.addSpacing(200)
-
+        self.down_layout.addSpacing(180)
+        
         self.down_layout.addWidget(self.single)
         self.down_layout.addWidget(self.repeat)
         self.down_layout.addWidget(self.shuffle)
@@ -883,7 +883,6 @@ class PlayWidgets(QFrame):
         self.down_layout.addWidget(self.volume_slider)
 
         self.down_layout.addStretch(1)
-        # self.down_layout.addSpacing(100)
         self.down_layout.addWidget(self.time)
 
         # self.down_layout.setContentsMargins(0, 0, 0, 0)

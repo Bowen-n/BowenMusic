@@ -6,7 +6,10 @@
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
 
 ### Screenshot
-![demo](demo/screenshot4.jpg)
+##### 搜索歌曲
+![search](demo/search.jpg)
+##### 歌单
+![playlist](demo/playlist.jpg)
 ### Progress
 2020.3.10 - 2020.3.15
 * QQ Music API 调研已完成，可获取歌信息和URL，会员歌曲需要绿钻用户Cookie
@@ -22,7 +25,7 @@
 * 完成Navigation事件绑定，包括我的歌单，在线音乐，本地音乐
 * 增加了将在线音乐添加到我的歌单的功能
 * 问题
-  * Player排本问题（有的歌名特别长，把其他按钮挤到了最右边)
+  * ~~Player排本问题（有的歌名特别长，把其他按钮挤到了最右边)~~
   * 最好设计成QQ音乐一样的滚动歌名（对于长歌名）
 
 2020.3.21 
@@ -73,10 +76,15 @@ class QQMusicWebdriver():
 * 歌单中增加播放、从歌单删除功能
 * 如果userdata/music中有其他奇怪的文件会报错的问题
 
+2020.3.29 :musical_note: **Desktop version finished**
+* Player部件排版调整，不会因为歌名长度不一而部件移动 
+  * Question 如何在QLabel中实现滚动字幕 ?
+
 ### TODO
 * [x] 网易云音乐API
 * [x] 咪咕音乐API
 * [x] 添加歌单功能
-* [ ] Player排版问题（歌名长度不一致）
+* [x] Player排版问题（歌名长度不一致）
 * [x] 从歌单中删除歌
+* [ ] 歌曲信息以滚动的方式显示 **ScrollLabel** in */src/component.py*
 * [ ] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 暂时考虑用`pygame`

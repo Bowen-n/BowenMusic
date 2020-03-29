@@ -63,25 +63,16 @@ class SearchLineEdit(QLineEdit):
         self.button.clicked.connect(func)
 
 
-'''
-class Player(QMediaPlayer):
-
-    time_changed = pyqtSignal(str)
-
+class ScrollLabel(QLabel):
     def __init__(self, parent=None):
-        super(Player, self).__init__()
-        self.setObjectName('Player')
-
+        super(ScrollLabel, self).__init__()
+        self.setObjectName("ScrollLabel")
         self.parent = parent
-        self.time = 0
-        self.play_list = QMediaPlaylist()
-
-
-        
-    def _trans_time(self):
-        pass
-'''
-
-
+        self.text_len = self.fontMetrics().width(self.text())
+    
+    def setText(self, string):
+        super().setText(string)
+        self.text_len = self.fontMetrics().width(self.text())
+        print(self.text_len)
 
     
