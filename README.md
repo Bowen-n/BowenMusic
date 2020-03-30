@@ -1,5 +1,5 @@
 # BowenMusic
-**Project for IS305**: 支持qq音乐、网易云、咪咕的音乐播放器。桌面版基于`PyQt5`，命令行版使用`Cmd`
+**Project for IS305**: 支持qq音乐、网易云、咪咕的音乐播放器。桌面版基于`PyQt5`，命令行版基于标准库`Cmd`.
 
 ### Structure
 ```
@@ -102,6 +102,8 @@ class QQMusicWebdriver():
 
 2020.3.30
 * 完成命令行版展示歌单功能
+  * `python-mpv` [安装](https://github.com/jaseg/python-mpv)
+  * **mpv**播放器(windows) [安装](https://github.com/jaseg/python-mpv/issues/60#issuecomment-352719773)
 
 ### TODO
 * [x] 网易云音乐API
