@@ -1,5 +1,5 @@
 # BowenMusic
-**Project for IS305**: 基于PyQt5的音乐播放器，目前已支持qq音乐、网易云音乐、咪咕音乐。
+**Project for IS305**: 支持qq音乐、网易云、咪咕的音乐播放器。桌面版基于`PyQt5`，命令行版使用`Cmd`
 
 ### Structure
 ```
@@ -14,9 +14,11 @@
 |-- userdata               cookie, download music and playlist created by the user
 ```
 ### Use
-`$ pip install -r requirements.txt`
+Requirements: `$ pip install -r requirements.txt`
 
-`$ python ./src/MusicDesktop.py`
+Desktop version: `$ python ./src/MusicDesktop.py`
+
+Command version: `$ python ./src/cmd_version/MusicCmd.py`
 
 ### API
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
@@ -26,6 +28,8 @@
 ![search](demo/search.jpg)
 ##### 歌单
 ![playlist](demo/playlist.jpg)
+##### Command
+![command_v1](demo/cmd_v1.jpg)
 ### Progress
 2020.3.10 - 2020.3.15
 * QQ Music API 调研已完成，可获取歌信息和URL，会员歌曲需要绿钻用户Cookie
@@ -96,6 +100,9 @@ class QQMusicWebdriver():
 * Player部件排版调整，不会因为歌名长度不一而部件移动 
   * Question 如何在QLabel中实现滚动字幕 ?
 
+2020.3.30
+* 完成命令行版展示歌单功能
+
 ### TODO
 * [x] 网易云音乐API
 * [x] 咪咕音乐API
@@ -103,4 +110,4 @@ class QQMusicWebdriver():
 * [x] Player排版问题（歌名长度不一致）
 * [x] 从歌单中删除歌
 * [ ] 歌曲信息以滚动的方式显示 **ScrollLabel** in */src/component.py*
-* [ ] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 暂时考虑用`pygame`
+* [ ] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 使用强大的**mpv**播放器，以及`python-mpv`接口
