@@ -9,8 +9,11 @@
 |---- api.py               APIs of qq/neteasecloud/migu music
 |---- component.py         Widgets inherit from `QLabel` and `QLineEdit`
 |---- module.py            Four main modules: Header, Navigation, Mainlist, PlayWidgets
-|---- MusicDesktop.py      Main window
+|---- MusicDesktop.py      Run code for desktop version.
 |---- webdriver.py         Get qq music cookies using Selenium
+|---- cmd_version
+|------  intro.txt         intro
+|------  MusicCmd.py       run code for command version
 |-- userdata               cookie, download music and playlist created by the user
 ```
 ### Use
@@ -29,7 +32,35 @@ Command version: `$ python ./src/cmd_version/MusicCmd.py`
 ##### 歌单
 ![playlist](demo/playlist.jpg)
 ##### Command
-![command_v1](demo/cmd_v1.jpg)
+```
+$ python ./src/cmd_version/MusicCmd.py
+ ____                          __  __           _
+| __ )  _____      _____ _ __ |  \/  |_   _ ___(_) ___
+|  _ \ / _ \ \ /\ / / _ \ '_ \| |\/| | | | / __| |/ __|
+| |_) | (_) \ V  V /  __/ | | | |  | | |_| \__ \ | (__
+|____/ \___/ \_/\_/ \___|_| |_|_|  |_|\__,_|___/_|\___|
+BowenMusic> pl
+1. 华晨宇   
+2. 周杰伦   
+3. 林俊杰   
+BowenMusic> pl 2
+
+歌单: 周杰伦
+---------------
+ 歌曲　　　　　　　　　　　　歌手　　　　　　　　专辑
+---------------------------------------------------------------------- 
+ 1. 晴天　　　　　　　　　　周杰伦　　　　　　　叶惠美
+ 2. 一路向北　　　　　　　　周杰伦　　　　　　　J III MP3 Player       
+ 3. 七里香　　　　　　　　　周杰伦　　　　　　　七里香
+ 4. 听妈妈的话　　　　　　　周杰伦　　　　　　　依然范特西
+ 5. 稻香　　　　　　　　　　周杰伦　　　　　　　魔杰座
+ 6. 搁浅　　　　　　　　　　周杰伦　　　　　　　七里香
+ 7. 告白气球　　　　　　　　周杰伦　　　　　　　周杰伦的床边故事       
+ 8. 不能说的秘密　　　　　　周杰伦　　　　　　　不能说的秘密 电影原声带
+ 9. 夜曲　　　　　　　　　　周杰伦　　　　　　　十一月的萧邦
+BowenMusic> quit
+Wish you good luck.
+```
 ### Progress
 2020.3.10 - 2020.3.15
 * QQ Music API 调研已完成，可获取歌信息和URL，会员歌曲需要绿钻用户Cookie
