@@ -132,9 +132,18 @@ class QQMusicWebdriver():
   * Question 如何在QLabel中实现滚动字幕 ?
 
 2020.3.30
-* 完成命令行版展示歌单功能
+* cmd版: 展示歌单
   * `python-mpv` [安装](https://github.com/jaseg/python-mpv)
   * **mpv**播放器(windows) [安装](https://github.com/jaseg/python-mpv/issues/60#issuecomment-352719773)
+
+2020.3.31
+* cmd版: 搜索功能
+  * 解决中英文混合输出对齐使用[wcwidth](https://github.com/jquast/wcwidth)
+
+2020.4.4
+* cmd版: 歌单创建/删除/重命名
+* cmd版: 将搜索歌曲加入歌单功能
+* cmd版: 更改源
 
 ### TODO
 * [x] 网易云音乐API
