@@ -1,41 +1,53 @@
 import json
 import os
 import sys
+import threading
 from cmd import Cmd
 
 import mpv
 from wcwidth import wcswidth
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from api import MiguMusicAPI, NeteaseCloudMusicAPI, QQMusicApi, \
-                convert_interval, convert_singerlist
+from api import (MiguMusicAPI, NeteaseCloudMusicAPI, QQMusicApi,
+                 convert_interval, convert_singerlist)
 
 
 class MusicShell(Cmd):
+    ''' Main command shell '''
+
     prompt = 'BowenMusic> '
     with open('src/cmd_version/intro.txt', 'r') as f:
-        intro = f.read()
+        intro = f.read()   # welcome
 
     def __init__(self):
         Cmd.__init__(self)
         self.playlist = list()
+        self.current_song = None
         self.search_result = {
             'source': '',
             'content': []
         }
 
         self._get_playlist_info()
-        self.api = QQMusicApi() 
+        self.api = QQMusicApi() # default qq
 
+        # self.player = mpv.MPV(ytdl=True)
+        
 
     # command #
     def do_pl(self, arg):
         ''' show playlist 
-        1. BowenMusic> pl          # all playlists overview
-        2. BowenMusic> pl index    # show songs in index's playlist
+        > pl          # all playlists overview
+        > pl 2    # show songs in 2nd playlist
         '''
+        # check playlist exists
+        self._get_playlist_info()
+        if len(self.playlist) == 0:
+            print('No playlist found, use `cpl` to create one.')
+            return
+
         # no arg, show all playlists' names
         if arg == '':
-            self._get_playlist_info()
             index = 1
             for index in range(len(self.playlist)):
                 print('{}. {}'.format(index+1, self.playlist[index]))
@@ -69,7 +81,6 @@ class MusicShell(Cmd):
         print('-'*80)
 
 
-
     def do_cpl(self, arg):
         ''' create playlist '''
         print('Please input the name of new playlist: ', end='')
@@ -87,6 +98,10 @@ class MusicShell(Cmd):
 
     def do_rpl(self, arg):
         ''' rename playlist '''
+        # check playlist exists
+        if len(self.playlist) == 0:
+            print('No playlist found, use `cpl` to create one.')
+            return
         # arg format
         if arg == '':
             print('Not enough arguments, the index of playlist should be offered.')
@@ -122,6 +137,10 @@ class MusicShell(Cmd):
 
     def do_dpl(self, arg):
         ''' delete playlist '''
+        # check playlist exists
+        if len(self.playlist) == 0:
+            print('No playlist found, user `cpl` to create one.')
+            return
         # arg format
         if arg == '':
             print('Not enough arguments, the index of playlist should be offered.')
@@ -171,12 +190,16 @@ class MusicShell(Cmd):
 
     def do_add(self, arg):
         ''' add songs in last search result to playlist 
-        Example.
-            > add 10 1 # 10 is index in search result, 1 is index of playlist
+        > add 10 1 # 10 is index in search result, 1 is index of playlist
         '''
         # check search result
         if len(self.search_result['content']) == 0:
             print('No search result, do search first.')
+            return
+        
+        # check playlist exists
+        if len(self.playlist) == 0:
+            print('No playlist found, use `cpl` to create one.')
             return
 
         # check arguments format
@@ -235,6 +258,127 @@ class MusicShell(Cmd):
         print('Add {} to playlist {} successfully.'.format(add_song['song_name'], pl_name))
 
 
+    def do_play(self, arg):
+        ''' play songs 
+        > play        # default play from playlist 1
+        > play -pl 2  # play from playlist 2
+        > play -s 2   # play the 2nd song in the last search result
+        '''
+        # update playlist
+        self._get_playlist_info()
+
+        # play from playlist 1 by default
+        if arg == '':
+            if len(self.playlist) == 0:
+                print('No playlist found, use `cpl` to create one.')
+                return
+            pl_name = self.playlist[0]
+            pl_path = os.path.join(self.LIST_DIR, pl_name+'.json')
+            with open(pl_path, 'r') as f:
+                song_list = json.load(f)
+            if len(song_list) == 0:
+                print('No song found in playlist {}.'.format(pl_name))
+                return
+            
+            play_pl_thread = threading.Thread(target=self._play_from_playlist, args=(song_list,))
+            play_pl_thread.start()
+
+        # play from playlist or search
+        else:
+            # args number
+            args = arg.split()
+            if len(args) < 2:
+                print('Not enough arguments, use `help play` for more information.')
+                return
+            if len(args) > 2:
+                print('Too much arguments, use `help play` for more information.')
+                return
+
+            # check mode
+            mode = args[0]
+            if mode not in ['-pl', '-s']:
+                print('Arguments error, use `help play` for more information.')
+                return
+
+            # play from playlist
+            if mode == '-pl':
+                if len(self.playlist) == 0:
+                    print('No playlist found, use `cpl` to create one.')
+                    return
+                try:
+                    pl_index = int(args[1])
+                    assert pl_index >= 1 and pl_index <= len(self.playlist)
+                except:
+                    print('playlist index should be in [1, {}].'.format(len(self.playlist)))
+                    return
+                pl_name = self.playlist[pl_index-1]
+                pl_path = os.path.join(self.LIST_DIR, pl_name+'.json')
+                with open(pl_path, 'r') as f:
+                    song_list = json.load(f)
+                if len(song_list) == 0:
+                    print('No song found in playlist {}.'.format(pl_name))
+                    return
+                
+                play_pl_thread = threading.Thread(target=self._play_from_playlist, args=(song_list,))
+                play_pl_thread.start()
+            
+            # play from search result
+            elif mode == '-s':
+                # TODO
+                pass
+
+
+    def _play_from_playlist(self, song_list):
+        for song in song_list:
+            if song['source'] == 'migu':
+                url = song['url']
+            elif song['source'] == 'qq':
+                url = QQMusicApi().get_url(song['song_mid'])
+            elif song['source'] == 'netease':
+                url = NeteaseCloudMusicAPI().get_url(song['song_mid'])
+            if url == '':
+                print('You need {} vip to listen {}.'.format(song['source'], song['song_name']))
+                continue
+            
+            self.event = threading.Event()
+            play_thread = threading.Thread(target=self.__play_base, args=(url,))
+            play_thread.start()
+            self.current_song = song
+            self.event.wait()
+
+
+    def __play_base(self, url):
+        self.player = mpv.MPV(ytdl=True)
+        self.player.play(url)
+        self.player.wait_for_playback()
+        del self.player
+        self.current_song = None
+        self.event.set()
+
+
+    def do_i(self, arg):
+        ''' print current playing song's info '''
+        if self.current_song == None:
+            print('No song is playing.')
+            return
+        try:
+            # print(self.player._get_property('time-pos'))
+            if self.current_song['source'] == 'migu':
+                total_time = ''
+            elif self.current_song['source'] == 'qq':
+                total_time = '/' + convert_interval(self.current_song['interval'])
+            elif self.current_song['source'] == 'netease':
+                total_time = '/' + self.current_song['interval']
+
+            print('Playing {} - {}  {}{}'.format(
+                self.current_song['song_name'], 
+                self.current_song['singers'],
+                convert_interval(int(self.player._get_property('time-pos'))),
+                total_time))
+        except:
+            print('No song is playing.')
+
+
     def do_cs(self, arg):
         ''' change search source
         arg must be in 'qq', 'netease', 'migu'
@@ -269,7 +413,6 @@ class MusicShell(Cmd):
         return self.do_quit(arg)
     def default(self, arg):
         print('Command not defined, use help for more information.')
-
 
 
     def _get_playlist_info(self):

@@ -145,6 +145,15 @@ class QQMusicWebdriver():
 * cmd版: 将搜索歌曲加入歌单功能
 * cmd版: 更改源
 
+2020.4.5
+* cmd版: 播放歌单中的歌曲
+```
+BowenMusic> play        # default play from playlist 1
+BowenMusic> play -pl 2  # play from playlist 2
+BowenMusic> play -s 2   # play the 2nd song in the last search result
+```
+
+
 ### TODO
 * [x] 网易云音乐API
 * [x] 咪咕音乐API

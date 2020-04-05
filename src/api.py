@@ -9,9 +9,21 @@ import urllib
 import requests
 from Cryptodome.Cipher import AES
 
-
+def convert_singerlist(singer_list):
+    if isinstance(singer_list, str):
+        return singer_list
+    if len(singer_list) == 0:
+        return ''
+    singers = ''
+    for singer in singer_list:
+        singers += singer+'/'
+    singers = singers.strip('/')
+    return singers
+    
 def convert_interval(interval):
     ''' convert interval(s) to   `str` -  hour:min:sec '''
+    if interval is None:
+        return ''
     hour = math.floor(interval / 3600)
     interval %= 3600
     minu = math.floor(interval / 60)
@@ -267,10 +279,10 @@ class MiguMusicAPI():
         return search_result
 
 # test NeteaseCloudMusicAPI
-# keyword = '我的一个道姑朋友'
+# keyword = '好想爱这个世界啊'
 # api = NeteaseCloudMusicAPI()
-# print(api.search(keyword, 1))
-# print(api.get_url(song_id='1367452194'))
+# song_id = api.search(keyword, 1)[0]['song_mid']
+# print(api.get_url(song_id=song_id))
 
 # test MiguMusicAPI
 # api = MiguMusicAPI()
@@ -279,8 +291,8 @@ class MiguMusicAPI():
 
 # test QQMusicApi
 # api = QQMusicApi()
-# search_result = api.search(1, '晴天')
+# search_result = api.search(1, '告白气球')
 # url = api.get_url(search_result[0]['song_mid'])
 # print(url)
-# urllib.request.urlretrieve(url, '告白气球.m4a')
+# # urllib.request.urlretrieve(url, '告白气球.m4a')
 
