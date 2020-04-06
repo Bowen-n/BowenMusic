@@ -1,5 +1,5 @@
 # BowenMusic
-**Project for IS305**: 支持qq音乐、网易云、咪咕的音乐播放器。桌面版基于`PyQt5`，命令行版基于标准库`Cmd`.
+**Project for IS305**: 支持qq音乐、网易云、咪咕的音乐播放器。桌面版基于`PyQt5`。命令行版基于标准库`Cmd`，支持linux, windows.
 
 ### Structure
 ```
