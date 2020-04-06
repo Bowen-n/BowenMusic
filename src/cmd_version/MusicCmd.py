@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import sys
@@ -12,6 +13,8 @@ from api import (MiguMusicAPI, NeteaseCloudMusicAPI, QQMusicApi,
                  convert_interval, convert_singerlist)
 
 
+
+
 class MusicShell(Cmd):
     ''' Main command shell '''
 
@@ -21,18 +24,25 @@ class MusicShell(Cmd):
 
     def __init__(self):
         Cmd.__init__(self)
-        self.playlist = list()
-        self.current_song = None
+
         self.search_result = {
             'source': '',
             'content': []
         }
-
-        self._get_playlist_info()
         self.api = QQMusicApi() # default qq
-
+        self.current_song = None # dict()
+        self.playlist = list()
         # self.player = mpv.MPV(ytdl=True)
-        
+
+        # playing signal
+        self.playing_s = False
+        self.playing_pl = False
+        self.interrupt = False
+        self.playing = False
+
+        # initialize playlist info
+        self._get_playlist_info()
+
 
     # command #
     def do_pl(self, arg):
@@ -174,15 +184,24 @@ class MusicShell(Cmd):
         if self.api.name == 'qq':
             self.search_result['source'] = 'qq'
             self.search_result['content'] = self.api.search(1, keyword)
-            self._show_search()
+            if len(self.search_result['content']) != 0: # result exists
+                self._show_search()
+            else:
+                print('No result found.')
         elif self.api.name == 'netease':
             self.search_result['source'] = 'netease'
             self.search_result['content'] = self.api.search(keyword, 1)
-            self._show_search()
+            if len(self.search_result['content']) != 0:
+                self._show_search()
+            else:
+                print('No result found.')
         elif self.api.name == 'migu':
             self.search_result['source'] = 'migu'
             self.search_result['content'] = self.api.search(keyword)
-            self._show_search()
+            if len(self.search_result['content']) != 0:
+                self._show_search()
+            else:
+                print('No result found.')
         else:
             print('api name not found.')
             return
@@ -244,7 +263,7 @@ class MusicShell(Cmd):
         music_info['song_name'] = add_song['song_name']
         music_info['singers'] = add_song['singer_list'] if source == 'migu' else convert_singerlist(add_song['singer_list'])
         music_info['album_name'] = add_song['album_name']
-        music_info['interval'] = '' if source == 'migu' else add_song['interval']
+        music_info['interval'] = '' if source == 'migu' else convert_interval(add_song['interval'])
         music_info['song_mid'] = add_song['song_mid']
         music_info['url'] = add_song['url'] if source == 'migu' else ''
 
@@ -319,16 +338,100 @@ class MusicShell(Cmd):
                     print('No song found in playlist {}.'.format(pl_name))
                     return
                 
-                play_pl_thread = threading.Thread(target=self._play_from_playlist, args=(song_list,))
+                play_pl_thread = threading.Thread(
+                    target=self._play_from_playlist, 
+                    args=(song_list,))
+
                 play_pl_thread.start()
             
             # play from search result
             elif mode == '-s':
-                # TODO
-                pass
+                if len(self.search_result['content']) == 0:
+                    print('No search result, do search first.')
+                    return
+
+                s_index_upper_limit = len(self.search_result['content']) if len(self.search_result['content']) <= 10 else 10
+                try:
+                    s_index = int(args[1])
+                    assert s_index >= 1 and s_index <= s_index_upper_limit
+                except:
+                    print('The index in search result must be in [1, {}].'.format(s_index_upper_limit))
+                
+                # song info
+                play_song = copy.deepcopy(self.search_result['content'][s_index-1])
+                play_song['source'] = self.search_result['source']
+                play_song['singers'] = play_song['singer_list'] if play_song['source'] == 'migu' else convert_singerlist(play_song['singer_list'])
+                play_song['interval'] = '' if play_song['source'] == 'migu' else convert_interval(play_song['interval'])
+
+                play_s_thread = threading.Thread(target=self._play_from_search, args=(play_song,))
+                play_s_thread.start()
+
+
+    def do_m(self, arg):
+        ''' pause or continue the player '''
+        try:
+            if self.player._get_property('pause') == False:
+                self.player._set_property('pause', True)
+                print('pause.')
+            else:
+                self.player._set_property('pause', False)
+                print('continue')
+        except:
+            print('No song is being played, use `play` first.')
+    
+
+    def _play_from_search(self, song):
+        # song url
+        if song['source'] == 'migu':
+            url = song['url']
+        elif song['source'] == 'qq':
+            url = QQMusicApi().get_url(song['song_mid'])
+        elif song['source'] == 'netease':
+            url = NeteaseCloudMusicAPI().get_url(song['song_mid'])
+
+        # check url
+        if url == '':
+            print('You need {} vip to listen {}.'.format(
+                self.search_result['source'],
+                play_song['song_name']))
+            return
+
+        # player is occupied by playing pl
+        if self.playing == True:
+            self.interrupt = True
+            self.player.terminate()
+        self.playing = True
+
+        self.player = mpv.MPV(ytdl=True)
+        self.event_s = threading.Event()
+        play_thread = threading.Thread(target=self.__play_search_base, args=(url,))
+        play_thread.start()
+        self.current_song = song
+        self.event_s.wait()
+
+        if self.interrupt == True:
+            self.interrupt = False
+            return
+
+        self.playing = False
+        self.player.terminate()
+        
+
+    def __play_search_base(self, url):
+        self.player.play(url)
+        self.player.wait_for_playback()
+        self.current_song = None
+        self.event_s.set()
 
 
     def _play_from_playlist(self, song_list):
+        if self.playing == True:
+            self.interrupt = True
+            self.player.terminate()
+        
+        self.playing = True
+        self.player = mpv.MPV(ytdl=True)
+        
         for song in song_list:
             if song['source'] == 'migu':
                 url = song['url']
@@ -337,23 +440,30 @@ class MusicShell(Cmd):
             elif song['source'] == 'netease':
                 url = NeteaseCloudMusicAPI().get_url(song['song_mid'])
             if url == '':
-                print('You need {} vip to listen {}.'.format(song['source'], song['song_name']))
+                print('You need {} vip to listen {}.'.format(
+                    song['source'], 
+                    song['song_name']))
                 continue
             
-            self.event = threading.Event()
-            play_thread = threading.Thread(target=self.__play_base, args=(url,))
+            self.event_pl = threading.Event()
+            play_thread = threading.Thread(target=self.__play_pl_base, args=(url,))
             play_thread.start()
             self.current_song = song
-            self.event.wait()
+            self.event_pl.wait()
 
+            # interrupt by playing search
+            if self.interrupt == True:
+                self.interrupt = False
+                return
+        
+        self.playing = False
+        self.player.terminate()
 
-    def __play_base(self, url):
-        self.player = mpv.MPV(ytdl=True)
+    def __play_pl_base(self, url):
         self.player.play(url)
         self.player.wait_for_playback()
-        del self.player
         self.current_song = None
-        self.event.set()
+        self.event_pl.set()
 
 
     def do_i(self, arg):
@@ -361,14 +471,14 @@ class MusicShell(Cmd):
         if self.current_song == None:
             print('No song is playing.')
             return
+        # print(self.current_song)
         try:
             # print(self.player._get_property('time-pos'))
             if self.current_song['source'] == 'migu':
                 total_time = ''
-            elif self.current_song['source'] == 'qq':
-                total_time = '/' + convert_interval(self.current_song['interval'])
-            elif self.current_song['source'] == 'netease':
+            else:
                 total_time = '/' + self.current_song['interval']
+
 
             print('Playing {} - {}  {}{}'.format(
                 self.current_song['song_name'], 

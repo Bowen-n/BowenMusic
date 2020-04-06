@@ -43,21 +43,31 @@ BowenMusic> pl
 1. 华晨宇   
 2. 周杰伦   
 3. 林俊杰   
-BowenMusic> pl 2
-
-歌单: 周杰伦
----------------
- 歌曲　　　　　　　　　　　　歌手　　　　　　　　专辑
----------------------------------------------------------------------- 
- 1. 晴天　　　　　　　　　　周杰伦　　　　　　　叶惠美
- 2. 一路向北　　　　　　　　周杰伦　　　　　　　J III MP3 Player       
- 3. 七里香　　　　　　　　　周杰伦　　　　　　　七里香
- 4. 听妈妈的话　　　　　　　周杰伦　　　　　　　依然范特西
- 5. 稻香　　　　　　　　　　周杰伦　　　　　　　魔杰座
- 6. 搁浅　　　　　　　　　　周杰伦　　　　　　　七里香
- 7. 告白气球　　　　　　　　周杰伦　　　　　　　周杰伦的床边故事       
- 8. 不能说的秘密　　　　　　周杰伦　　　　　　　不能说的秘密 电影原声带
- 9. 夜曲　　　　　　　　　　周杰伦　　　　　　　十一月的萧邦
+BowenMusic> search 晴天
+    歌曲                          歌手                专辑                          时长
+----------------------------------------------------------------------------------------------------
+1.  晴天                          周杰伦              叶惠美                         04:29
+2.  晴天（女声翻唱）                刘瑞琦                                            00:00
+3.  晴天 (Live)                   周杰伦              周杰伦地表最强世界巡回演唱会       04:09
+4.  晴天 (Cover：周杰伦)            西瓜Kune           eonian day                    04:26
+5.  晴天 (Live)                   娄艺潇              跨界歌王第二季 第9期             04:16
+6.  欧阳耀莹 翻唱 晴天（周杰伦）      欧阳耀莹             欧阳耀莹 Cover合辑              02:27
+7.  晴天 (Live)                   林俊杰/周杰伦                                      03:59
+8.  晴天 (Cover: 周杰伦)           符嘉超               只录一遍的倔强                  05:16
+9.  晴天 (Cover: 周杰伦)           Vaniah维            Vaniah音乐实验室               04:31
+10. 晴天 (Cover:  周杰伦)          哎呦哥哥             哎呦哥哥嗨你好                  04:44
+----------------------------------------------------------------------------------------------------
+BowenMusic> s
+Current source is 'qq'
+BowenMusic> cs migu
+Source is changed to migu music.
+BowenMusic> play -s 1
+BowenMusic> i
+Playing 晴天 - 周杰伦  00:01/04:29
+BowenMusic> m
+pause.
+BowenMusic> m
+continue
 BowenMusic> quit
 Wish you good luck.
 ```
@@ -153,6 +163,9 @@ BowenMusic> play -pl 2  # play from playlist 2
 BowenMusic> play -s 2   # play the 2nd song in the last search result
 ```
 
+2020.4.6
+* cmd版: 播放搜索的歌曲
+* cmd版: 暂停/继续 
 
 ### TODO
 * [x] 网易云音乐API
