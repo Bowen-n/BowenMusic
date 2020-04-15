@@ -21,7 +21,7 @@ Requirements: `$ pip install -r requirements.txt`
 
 Desktop version: `$ python ./src/MusicDesktop.py`
 
-Command version: `$ python ./src/cmd_version/MusicCmd.py`
+Command version: `$ python ./src/MusicCmd.py`
 
 ### API
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
