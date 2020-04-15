@@ -15,6 +15,8 @@
 |---- MusicCmd.py          run code for command version
 |-- userdata               cookie, download music and playlist created by the user
 ```
+
+![Desktop version structure](demo/desktop_structure.png)
 ### Use
 Requirements: `$ pip install -r requirements.txt`
 
