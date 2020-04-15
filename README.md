@@ -11,9 +11,8 @@
 |---- module.py            Four main modules: Header, Navigation, Mainlist, PlayWidgets
 |---- MusicDesktop.py      Run code for desktop version.
 |---- webdriver.py         Get qq music cookies using Selenium
-|---- cmd_version
-|------  intro.txt         intro
-|------  MusicCmd.py       run code for command version
+|---- intro.txt            introduction text for command version
+|---- MusicCmd.py          run code for command version
 |-- userdata               cookie, download music and playlist created by the user
 ```
 ### Use
