@@ -2,6 +2,7 @@
 **Project for IS305**: 支持qq音乐、网易云、咪咕的音乐播放器。桌面版基于`PyQt5`。命令行版基于标准库`Cmd`，支持linux, windows.
 
 ### Structure
+##### File Structure
 ```
 |-- qss                    .qss file for the style of GUI
 |-- resource               icons
@@ -15,8 +16,11 @@
 |---- MusicCmd.py          run code for command version
 |-- userdata               cookie, download music and playlist created by the user
 ```
-
+##### Desktop version Structure
 ![Desktop version structure](demo/desktop_structure.png)
+##### Command version Structure
+![Cmd version structure](demo/cmd_structure.png)
+
 ### Use
 Requirements: `$ pip install -r requirements.txt`
 
@@ -175,4 +179,4 @@ BowenMusic> play -s 2   # play the 2nd song in the last search result
 * [x] Player排版问题（歌名长度不一致）
 * [x] 从歌单中删除歌
 * [ ] 歌曲信息以滚动的方式显示 **ScrollLabel** in */src/component.py*
-* [ ] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 使用强大的**mpv**播放器，以及`python-mpv`接口
+* [x] :triangular_flag_on_post: 添加命令行版本(Windows & Linux & MacOS) 使用强大的**mpv**播放器，以及`python-mpv`接口
