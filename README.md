@@ -1,8 +1,12 @@
 # BowenMusic
-**Project for IS305**: 支持qq音乐、网易云、咪咕的音乐播放器。桌面版基于`PyQt5`。命令行版基于标准库`Cmd`，支持linux, windows.
+Project for IS305, 支持qq音乐、网易云、咪咕的音乐播放器。
 
-### Structure
-##### File Structure
+* Gui: **PyQt5**
+* Shell: **Cmd** 
+* 接口转发: **Flask**
+
+## Structure
+### File Structure
 ```
 |-- qss                    .qss file for the style of GUI
 |-- resource               icons
@@ -16,27 +20,23 @@
 |---- MusicCmd.py          run code for command version
 |-- userdata               cookie, download music and playlist created by the user
 ```
-##### Desktop version Structure
+### Program Structure
 ![Desktop version structure](demo/desktop_structure.png)
-##### Command version Structure
 ![Cmd version structure](demo/cmd_structure.png)
 
-### Use
-Requirements: `$ pip install -r requirements.txt`
+## Use
+Requirements: `$ pip install -r requirements.txt`<br>
+GUI version: `$ python ./src/MusicDesktop.py`<br>
+Shell version: `$ python ./src/MusicCmd.py`<br>
+API forwording: `$python ./src/api_forward.py`
 
-Desktop version: `$ python ./src/MusicDesktop.py`
-
-Command version: `$ python ./src/MusicCmd.py`
-
-### API
+## API
 [NeteaseCloudMusic API](https://github.com/Bowenduan/BowenMusic/wiki/NeteaseCloudMusic-API)
 
-### Screenshot
-##### 搜索歌曲
+## Screenshot
+### GUI
 ![search](demo/search.jpg)
-##### 歌单
-![playlist](demo/playlist.jpg)
-##### Command
+### Shell
 ```
 $ python ./src/cmd_version/MusicCmd.py
  ____                          __  __           _
@@ -76,7 +76,9 @@ continue
 BowenMusic> quit
 Wish you good luck.
 ```
-### Progress
+
+
+## Progress
 2020.3.10 - 2020.3.15
 * QQ Music API 调研已完成，可获取歌信息和URL，会员歌曲需要绿钻用户Cookie
 * 图标准备，资源为[Iconfont](https://www.iconfont.cn/) 和 [easyicon](https://www.easyicon.net/)
@@ -171,6 +173,10 @@ BowenMusic> play -s 2   # play the 2nd song in the last search result
 2020.4.6
 * cmd版: 播放搜索的歌曲
 * cmd版: 暂停/继续 
+
+2020.4.21
+* 基于`Flask`的接口转发
+`$ python ./src/api_forward.py`
 
 ### TODO
 * [x] 网易云音乐API

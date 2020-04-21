@@ -57,7 +57,7 @@ class QQMusicApi():
         self.sip = 'http://dl.stream.qqmusic.qq.com/'
         self.name = 'qq'
 
-    def search(self, page, keyword):
+    def search(self, keyword, page=1):
         ''' search according to keyword 
         keyword - `str`
         '''
@@ -115,7 +115,10 @@ class QQMusicApi():
 
         result = self._request(url=vkey_url, headers=headers)
 
-        purl = result['req_0']['data']['midurlinfo'][0]['purl']
+        try:
+            purl = result['req_0']['data']['midurlinfo'][0]['purl']
+        except:
+            return None
         
         if purl == "":
             # print('no purl')
@@ -164,7 +167,7 @@ class NeteaseCloudMusicAPI():
         self.nonce = b'0CoJUm6Qyw8W8jud'
         self.pubKey = '010001'
 
-    def search(self, keyword, type, offset=0, limit=30):
+    def search(self, keyword, type=1, offset=0, limit=30):
         '''
         type - 
             1: 单曲     10: 专辑   100: 歌手    1000: 歌单 
@@ -208,8 +211,11 @@ class NeteaseCloudMusicAPI():
         }
         response = requests.post(url, data=self._encrypted_request(req), headers=self.header)
         result = json.loads(response.text)
-
-        return result['data'][0]['url']
+        
+        try:
+            return result['data'][0]['url']
+        except:
+            return None
         
 
     def _create_secret_key(self, size):
@@ -293,6 +299,7 @@ class MiguMusicAPI():
 # api = QQMusicApi()
 # search_result = api.search(1, '告白气球')
 # url = api.get_url(search_result[0]['song_mid'])
+# print(api.get_url('abcd'))
 # print(url)
 # # urllib.request.urlretrieve(url, '告白气球.m4a')
 
