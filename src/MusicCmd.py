@@ -459,7 +459,8 @@ class MusicShell(Cmd):
 
     def __play_pl_base(self, url):
         self.player.play(url)
-        self.player.wait_for_playback()
+        # self.player.wait_for_playback()
+        self.player.wait_for_shutdown()
         self.current_song = None
         self.event_pl.set()
 
