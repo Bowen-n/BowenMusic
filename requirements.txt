@@ -1,5 +1,5 @@
 pymediainfo==4.1
-requests==2.22.0
+requests==2.31.0
 selenium==3.141.0
 pycryptodomex==3.9.7
 PyQt5==5.14.1
